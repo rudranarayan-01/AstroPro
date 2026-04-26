@@ -12,6 +12,7 @@
   "type": "module",
   "description": "",
   "dependencies": {
+    "@google/genai": "^1.50.1",
     "@google/generative-ai": "^0.24.1",
     "@ishubhamx/panchangam-js": "^2.2.6",
     "@supabase/supabase-js": "^2.104.0",

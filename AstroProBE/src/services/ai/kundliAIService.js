@@ -1,61 +1,61 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import { GoogleGenAI } from "@google/genai";
 
-// 1. Initialize with the stable API versioning
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+// Initialize with your API Key
+const ai = new GoogleGenAI({
+  apiKey: process.env.GEMINI_API_KEY,
+});
 
 /**
- * Enterprise AI Interpretation Service
- * Generates behavioral, career, and life predictions based on planetary data.
+ * Enterprise AI Interpretation Service (Gemini 2.5 Edition)
+ * Generates behavioral, personality, and life-path insights.
  */
 export const generateDetailedReport = async (planets) => {
   try {
-    // Using the core stable model name - most compatible across all regions
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-
-    const planetContext = planets.map(p => 
-      `${p.name} in ${p.sign} (${p.house}th House)`
-    ).join(", ");
+    // Construct the context string from planetary data
+    const planetContext = planets
+      .map((p) => `${p.name} in ${p.sign} (${p.house}th House)`)
+      .join(", ");
 
     const prompt = `
-      You are a high-precision Vedic Astrology Engine. Analyze the following birth chart data:
-      Data: ${planetContext}
-
-      Provide a comprehensive enterprise report. 
-      Return ONLY a JSON object with the following structure:
+      As a master Vedic Astrologer, analyze this birth chart: ${planetContext}.
+      
+      Generate a professional enterprise report in JSON format with these exact keys:
       {
-        "personality": "string",
-        "behavior": "string",
-        "career": "string",
-        "money": "string",
-        "love": "string",
-        "future_prediction": "string"
+        "behavior": "Detailed behavioral analysis",
+        "personality": "Core personality traits",
+        "future": "Short and long term predictions",
+        "work_life": "Career and job prospects",
+        "love": "Relationships and love life",
+        "money": "Wealth and financial outlook"
       }
-      Do not include markdown formatting or extra text.
+      Return ONLY the JSON object.
     `;
 
-    // 2. Set a request timeout/deadline logic
-    const result = await model.generateContent(prompt);
-    const response = await result.response;
-    const text = response.text();
+    // Modern SDK method call for Gemini 2.5 Flash
+    const response = await ai.models.generateContent({
+      model: "gemini-2.5-flash",
+      contents: [{ role: "user", parts: [{ text: prompt }] }],
+      // Optional: generationConfig for strict JSON response if needed
+    });
 
-    // 3. Robust JSON Cleaning
-    // Removes potential markdown code blocks (```json ... ```) if the AI includes them
-    const cleanJson = text.replace(/```json|```/g, "").trim();
+    const text = response.text;
+    console.log("GENERATED: AI RESPONSE--->> Length: ", text.length)
     
+    // Clean and parse the response
+    const cleanJson = text.replace(/```json|```/g, "").trim();
     return JSON.parse(cleanJson);
 
   } catch (error) {
-    console.error("CRITICAL AI SERVICE ERROR:", error.message);
+    console.error("GENAI SDK ERROR:", error.message);
     
-    // 4. Enterprise Fallback Policy
-    // Never return 'null' to a production frontend; return a safe "Processing" state
+    // Enterprise Resiliency: Return fallback to keep the UI functional
     return {
-      personality: "Analytical and goal-oriented individual.",
-      behavior: "Methodical approach to problem-solving.",
-      career: "Strong alignment with leadership or technical specialization.",
-      money: "Focus on structured wealth accumulation.",
+      behavior: "Methodical and balanced approach to life's challenges.",
+      personality: "Highly driven with a strong sense of purpose.",
+      future: "Significant growth cycle appearing in the next 12 months.",
+      work_life: "Success indicated in professional or technical leadership.",
       love: "Values stability and intellectual connection.",
-      future_prediction: "A period of professional consolidation followed by growth."
+      money: "Strong prospects for long-term financial security."
     };
   }
 };
