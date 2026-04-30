@@ -1,0 +1,339 @@
+
+<!DOCTYPE html>
+<h2 class="sr-only">AstroPro landing page UI — hero section, features, testimonials, and pricing</h2>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',system-ui,sans-serif;background:#0A0A0F;color:#F5F0E8;overflow-x:hidden}
+:root{
+  --orange:#F97316;--orange-lt:#FED7AA;--orange-dk:#EA580C;
+  --gold:#F59E0B;--cream:#FEF3C7;
+  --surface:#13131A;--surface2:#1C1C27;--surface3:#252535;
+  --border:rgba(249,115,22,0.18);--border2:rgba(255,255,255,0.08);
+  --text:#F5F0E8;--muted:#A09080;--subtle:rgba(245,240,232,0.55)
+}
+.nav{position:sticky;top:0;z-index:100;background:rgba(10,10,15,0.85);backdrop-filter:blur(12px);border-bottom:0.5px solid var(--border2);padding:0 2rem;display:flex;align-items:center;justify-content:space-between;height:60px}
+.logo{display:flex;align-items:center;gap:8px;font-size:18px;font-weight:600;letter-spacing:-0.3px}
+.logo-icon{width:28px;height:28px;background:linear-gradient(135deg,var(--orange),var(--gold));border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:14px}
+.nav-links{display:flex;gap:2rem;font-size:14px;color:var(--muted)}
+.nav-links a{color:var(--muted);text-decoration:none;transition:color .2s}
+.nav-links a:hover{color:var(--text)}
+.nav-right{display:flex;align-items:center;gap:12px}
+.btn{padding:8px 18px;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;border:none;transition:all .2s}
+.btn-ghost{background:transparent;color:var(--muted);border:0.5px solid var(--border2)}
+.btn-ghost:hover{background:var(--surface2);color:var(--text)}
+.btn-primary{background:var(--orange);color:#fff;box-shadow:0 0 20px rgba(249,115,22,0.3)}
+.btn-primary:hover{background:var(--orange-dk);box-shadow:0 0 30px rgba(249,115,22,0.5)}
+
+/* HERO */
+.hero{min-height:90vh;display:flex;align-items:center;justify-content:center;text-align:center;padding:4rem 2rem;position:relative;overflow:hidden}
+.hero-bg{position:absolute;inset:0;background:radial-gradient(ellipse 70% 60% at 50% 30%,rgba(249,115,22,0.08) 0%,transparent 70%)}
+.zodiac-ring{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:600px;height:600px;border:0.5px solid rgba(249,115,22,0.1);border-radius:50%;animation:spin 60s linear infinite}
+.zodiac-ring2{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:460px;height:460px;border:0.5px solid rgba(249,115,22,0.07);border-radius:50%;animation:spin 40s linear infinite reverse}
+@keyframes spin{to{transform:translate(-50%,-50%) rotate(360deg)}}
+.star{position:absolute;background:#F59E0B;border-radius:50%;animation:twinkle 3s ease-in-out infinite}
+@keyframes twinkle{0%,100%{opacity:0.3;transform:scale(1)}50%{opacity:1;transform:scale(1.4)}}
+.hero-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(249,115,22,0.12);border:0.5px solid rgba(249,115,22,0.3);border-radius:20px;padding:5px 14px;font-size:12px;color:var(--orange-lt);margin-bottom:1.5rem}
+.hero-title{font-size:clamp(2.2rem,6vw,4rem);font-weight:700;letter-spacing:-1.5px;line-height:1.1;margin-bottom:1.2rem;background:linear-gradient(135deg,#F5F0E8 30%,var(--orange) 70%,var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero-sub{font-size:1.1rem;color:var(--subtle);max-width:520px;margin:0 auto 2.5rem;line-height:1.7}
+.hero-ctas{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.btn-large{padding:13px 28px;font-size:15px;border-radius:10px}
+.btn-outline{background:transparent;color:var(--text);border:0.5px solid rgba(255,255,255,0.2)}
+.btn-outline:hover{background:rgba(255,255,255,0.05);border-color:rgba(255,255,255,0.35)}
+.hero-stats{display:flex;gap:3rem;justify-content:center;margin-top:4rem;padding-top:3rem;border-top:0.5px solid var(--border2)}
+.stat-num{font-size:1.8rem;font-weight:700;color:var(--orange)}
+.stat-lbl{font-size:12px;color:var(--muted);margin-top:2px}
+
+/* FEATURES */
+.section{padding:5rem 2rem;max-width:1100px;margin:0 auto}
+.sec-label{font-size:12px;font-weight:500;color:var(--orange);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:0.8rem}
+.sec-title{font-size:clamp(1.6rem,4vw,2.4rem);font-weight:700;letter-spacing:-0.8px;margin-bottom:1rem}
+.sec-sub{font-size:1rem;color:var(--subtle);max-width:520px;line-height:1.7}
+.features-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1px;margin-top:3rem;border:1px solid var(--border2);border-radius:16px;overflow:hidden}
+.feat-card{background:var(--surface);padding:2rem;cursor:pointer;transition:background .2s;position:relative}
+.feat-card:hover{background:var(--surface2)}
+.feat-icon{width:44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;margin-bottom:1.2rem;font-size:20px}
+.feat-title{font-size:1rem;font-weight:600;margin-bottom:0.5rem}
+.feat-desc{font-size:13px;color:var(--muted);line-height:1.6}
+.feat-arrow{position:absolute;top:1.5rem;right:1.5rem;color:var(--muted);font-size:18px;opacity:0;transition:opacity .2s}
+.feat-card:hover .feat-arrow{opacity:1}
+
+/* HOW IT WORKS */
+.how-section{background:var(--surface);padding:5rem 2rem;border-top:0.5px solid var(--border2);border-bottom:0.5px solid var(--border2)}
+.steps-row{display:flex;gap:0;max-width:900px;margin:3rem auto 0;position:relative}
+.steps-row::before{content:'';position:absolute;top:28px;left:10%;right:10%;height:0.5px;background:linear-gradient(90deg,transparent,var(--orange),transparent)}
+.step{flex:1;text-align:center;padding:0 1rem}
+.step-num{width:56px;height:56px;border-radius:50%;background:var(--surface3);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:var(--orange);margin:0 auto 1rem;position:relative;z-index:1}
+.step-title{font-size:14px;font-weight:600;margin-bottom:0.4rem}
+.step-desc{font-size:12px;color:var(--muted);line-height:1.5}
+
+/* TESTIMONIALS */
+.testimonials-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1rem;margin-top:2.5rem}
+.testi-card{background:var(--surface);border:0.5px solid var(--border2);border-radius:14px;padding:1.5rem}
+.testi-card:hover{border-color:var(--border)}
+.stars{color:var(--gold);font-size:13px;margin-bottom:0.8rem;letter-spacing:1px}
+.testi-text{font-size:14px;color:var(--subtle);line-height:1.7;margin-bottom:1.2rem}
+.testi-author{display:flex;align-items:center;gap:10px}
+.avatar{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;flex-shrink:0}
+.author-name{font-size:13px;font-weight:500}
+.author-sub{font-size:11px;color:var(--muted)}
+
+/* PRICING */
+.pricing-section{padding:5rem 2rem;max-width:1000px;margin:0 auto;text-align:center}
+.plans-row{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-top:2.5rem}
+.plan-card{background:var(--surface);border:0.5px solid var(--border2);border-radius:16px;padding:2rem;text-align:left;position:relative;transition:border-color .2s}
+.plan-card:hover{border-color:rgba(249,115,22,0.3)}
+.plan-card.popular{border-color:var(--orange);background:var(--surface2)}
+.popular-badge{position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:var(--orange);color:#fff;font-size:11px;font-weight:600;padding:3px 12px;border-radius:20px;white-space:nowrap}
+.plan-name{font-size:13px;font-weight:500;color:var(--muted);margin-bottom:0.5rem;text-transform:uppercase;letter-spacing:0.8px}
+.plan-price{font-size:2.4rem;font-weight:700;letter-spacing:-1px;color:var(--text);margin-bottom:0.3rem}
+.plan-price span{font-size:14px;color:var(--muted);font-weight:400}
+.plan-desc{font-size:13px;color:var(--muted);margin-bottom:1.5rem;line-height:1.5}
+.plan-divider{height:0.5px;background:var(--border2);margin:1.2rem 0}
+.plan-feature{font-size:13px;color:var(--subtle);margin-bottom:0.5rem;display:flex;gap:8px;align-items:center}
+.plan-feature::before{content:'✓';color:var(--orange);font-weight:600;flex-shrink:0}
+.btn-plan{width:100%;margin-top:1.5rem;padding:11px;border-radius:8px;font-size:14px;font-weight:500;cursor:pointer;border:none;transition:all .2s}
+.btn-plan-ghost{background:transparent;color:var(--text);border:0.5px solid var(--border2)}
+.btn-plan-ghost:hover{background:var(--surface3)}
+.btn-plan-orange{background:var(--orange);color:#fff;box-shadow:0 0 20px rgba(249,115,22,0.25)}
+.btn-plan-orange:hover{background:var(--orange-dk)}
+
+/* FOOTER */
+.footer{padding:3rem 2rem;border-top:0.5px solid var(--border2);display:flex;align-items:center;justify-content:space-between;max-width:1100px;margin:0 auto;color:var(--muted);font-size:13px}
+.footer-links{display:flex;gap:1.5rem}
+.footer-links a{color:var(--muted);text-decoration:none}
+.footer-links a:hover{color:var(--text)}
+</style>
+
+<!-- NAV -->
+<nav class="nav">
+  <div class="logo">
+    <div class="logo-icon">✦</div>
+    AstroPro
+  </div>
+  <div class="nav-links">
+    <a href="#">Features</a>
+    <a href="#">Kundli</a>
+    <a href="#">Astrologers</a>
+    <a href="#">Pricing</a>
+  </div>
+  <div class="nav-right">
+    <button class="btn btn-ghost">Sign in</button>
+    <button class="btn btn-primary" onclick="sendPrompt('Show me the AstroPro Kundli dashboard UI')">Get started →</button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="zodiac-ring"></div>
+  <div class="zodiac-ring2"></div>
+  <div id="stars"></div>
+  <div style="position:relative;z-index:2">
+    <div class="hero-badge">✦ AI-Powered Vedic Astrology Platform</div>
+    <h1 class="hero-title">Your Stars,<br>Decoded by AI</h1>
+    <p class="hero-sub">Generate your Kundli, analyse Vastu, read your palm — all powered by classical Vedic knowledge and GPT-4 intelligence.</p>
+    <div class="hero-ctas">
+      <button class="btn btn-primary btn-large" onclick="sendPrompt('Show me the Kundli generator multi-step form UI')">Generate Your Kundli →</button>
+      <button class="btn btn-outline btn-large" onclick="sendPrompt('Show me the AstroPro chat with astrologer UI')">Chat with Astrologer</button>
+    </div>
+    <div class="hero-stats">
+      <div><div class="stat-num">2.4M+</div><div class="stat-lbl">Kundlis generated</div></div>
+      <div><div class="stat-num">1,200+</div><div class="stat-lbl">Verified astrologers</div></div>
+      <div><div class="stat-num">98%</div><div class="stat-lbl">Accuracy rating</div></div>
+      <div><div class="stat-num">40+</div><div class="stat-lbl">Languages supported</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<div style="background:var(--surface);border-top:0.5px solid var(--border2);border-bottom:0.5px solid var(--border2);padding:1.5rem 0">
+  <div style="max-width:900px;margin:0 auto;display:flex;justify-content:space-around;align-items:center;flex-wrap:wrap;gap:1rem;padding:0 2rem">
+    <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted)"><span style="color:var(--orange)">✦</span>Swiss Ephemeris accuracy</div>
+    <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted)"><span style="color:var(--orange)">✦</span>200+ classical Yogas detected</div>
+    <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted)"><span style="color:var(--orange)">✦</span>GPT-4o interpretation</div>
+    <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted)"><span style="color:var(--orange)">✦</span>DPDP Act 2023 compliant</div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="sec-label">Core features</div>
+  <h2 class="sec-title">Everything you need,<br>in one platform</h2>
+  <p class="sec-sub">From birth chart generation to live astrologer consultations — all features in one premium platform.</p>
+  <div class="features-grid">
+    <div class="feat-card" onclick="sendPrompt('Show me the AstroPro Kundli result dashboard UI')">
+      <div class="feat-icon" style="background:rgba(249,115,22,0.12)">🪐</div>
+      <div class="feat-title">Kundli Generation</div>
+      <div class="feat-desc">Accurate Vedic birth charts with 200+ Yoga analysis, Dasha timelines, and AI interpretation in English and Hindi.</div>
+      <div class="feat-arrow">→</div>
+    </div>
+    <div class="feat-card" onclick="sendPrompt('Show me the AstroPro Vastu analysis UI')">
+      <div class="feat-icon" style="background:rgba(245,158,11,0.12)">🏠</div>
+      <div class="feat-title">Vastu Analysis</div>
+      <div class="feat-desc">Upload your floor plan and get a detailed room-by-room compliance report with zone scoring and remedies.</div>
+      <div class="feat-arrow">→</div>
+    </div>
+    <div class="feat-card" onclick="sendPrompt('Show me the AstroPro palm reading UI')">
+      <div class="feat-icon" style="background:rgba(99,102,241,0.12)">✋</div>
+      <div class="feat-title">Palm Reading (AI)</div>
+      <div class="feat-desc">Upload a palm photo and get computer-vision powered line detection with personality scores and life insights.</div>
+      <div class="feat-arrow">→</div>
+    </div>
+    <div class="feat-card" onclick="sendPrompt('Show me the AstroPro chat with astrologer UI')">
+      <div class="feat-icon" style="background:rgba(16,185,129,0.12)">💬</div>
+      <div class="feat-title">Chat with Astrologer</div>
+      <div class="feat-desc">Connect with verified Jyotish experts live, or chat 24/7 with our AI astrologer trained on classical texts.</div>
+      <div class="feat-arrow">→</div>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon" style="background:rgba(236,72,153,0.12)">📅</div>
+      <div class="feat-title">Daily Panchang</div>
+      <div class="feat-desc">Tithi, Nakshatra, Rahu Kaal, and Muhurta recommendations — personalised to your location every day.</div>
+      <div class="feat-arrow">→</div>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon" style="background:rgba(59,130,246,0.12)">💍</div>
+      <div class="feat-title">Kundli Matching</div>
+      <div class="feat-desc">Ashtakoota compatibility analysis with all 8 Kuta scores, Mangal Dosha check, and suitability report.</div>
+      <div class="feat-arrow">→</div>
+    </div>
+  </div>
+</div>
+
+<!-- HOW IT WORKS -->
+<div class="how-section">
+  <div style="max-width:1100px;margin:0 auto">
+    <div style="text-align:center;margin-bottom:1rem">
+      <div class="sec-label">How it works</div>
+      <h2 class="sec-title">Ready in under 60 seconds</h2>
+    </div>
+    <div class="steps-row">
+      <div class="step">
+        <div class="step-num">01</div>
+        <div class="step-title">Enter birth details</div>
+        <div class="step-desc">Name, date, time, and place of birth</div>
+      </div>
+      <div class="step">
+        <div class="step-num">02</div>
+        <div class="step-title">AI calculates chart</div>
+        <div class="step-desc">Swiss Ephemeris + 200+ Yoga rules run instantly</div>
+      </div>
+      <div class="step">
+        <div class="step-num">03</div>
+        <div class="step-title">GPT-4 interprets</div>
+        <div class="step-desc">Grounded in classical texts via RAG pipeline</div>
+      </div>
+      <div class="step">
+        <div class="step-num">04</div>
+        <div class="step-title">Explore insights</div>
+        <div class="step-desc">Dashboard, PDF report, or chat with an expert</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TESTIMONIALS -->
+<div class="section">
+  <div class="sec-label">Testimonials</div>
+  <h2 class="sec-title">Trusted by 2.4 million users</h2>
+  <div class="testimonials-grid">
+    <div class="testi-card">
+      <div class="stars">★★★★★</div>
+      <p class="testi-text">"The most accurate Kundli report I've ever received. The AI interpretation is surprisingly deep — it caught my current Saturn Dasha with perfect detail."</p>
+      <div class="testi-author">
+        <div class="avatar" style="background:rgba(249,115,22,0.2);color:var(--orange)">PR</div>
+        <div><div class="author-name">Priya Rajan</div><div class="author-sub">Software Engineer, Mumbai</div></div>
+      </div>
+    </div>
+    <div class="testi-card">
+      <div class="stars">★★★★★</div>
+      <p class="testi-text">"I use AstroPro to provide charts to my clients before consultations. The planet positions match my own calculations exactly, and the PDF reports are beautiful."</p>
+      <div class="testi-author">
+        <div class="avatar" style="background:rgba(245,158,11,0.2);color:var(--gold)">PS</div>
+        <div><div class="author-name">Pundit Sharma</div><div class="author-sub">Vedic Astrologer, Varanasi</div></div>
+      </div>
+    </div>
+    <div class="testi-card">
+      <div class="stars">★★★★★</div>
+      <p class="testi-text">"The Vastu analysis helped me re-arrange my home office. The zone map made it clear why I was struggling to focus — kitchen was in the wrong direction entirely."</p>
+      <div class="testi-author">
+        <div class="avatar" style="background:rgba(99,102,241,0.2);color:#818CF8">RS</div>
+        <div><div class="author-name">Ramesh Shah</div><div class="author-sub">Business Owner, Jaipur</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PRICING -->
+<div class="pricing-section">
+  <div class="sec-label">Pricing</div>
+  <h2 class="sec-title">Simple, transparent plans</h2>
+  <p class="sec-sub" style="margin:0 auto 0.5rem">Start free, upgrade when you need more.</p>
+  <div class="plans-row">
+    <div class="plan-card">
+      <div class="plan-name">Free</div>
+      <div class="plan-price">₹0 <span>/month</span></div>
+      <div class="plan-desc">Perfect for exploring the platform</div>
+      <div class="plan-divider"></div>
+      <div class="plan-feature">Basic Kundli chart</div>
+      <div class="plan-feature">Daily Rashi horoscope</div>
+      <div class="plan-feature">1 palm reading/month</div>
+      <div class="plan-feature">10 AI chat messages/day</div>
+      <button class="btn-plan btn-plan-ghost" onclick="sendPrompt('Show me the AstroPro Kundli generator form')">Get started free</button>
+    </div>
+    <div class="plan-card popular">
+      <div class="popular-badge">Most popular</div>
+      <div class="plan-name">Basic</div>
+      <div class="plan-price">₹199 <span>/month</span></div>
+      <div class="plan-desc">For regular users who want full insights</div>
+      <div class="plan-divider"></div>
+      <div class="plan-feature">Full AI Kundli interpretation</div>
+      <div class="plan-feature">Personalised horoscopes</div>
+      <div class="plan-feature">3 palm readings/month</div>
+      <div class="plan-feature">1 Vastu analysis/month</div>
+      <div class="plan-feature">PDF report downloads</div>
+      <div class="plan-feature">100 AI chat messages/day</div>
+      <button class="btn-plan btn-plan-orange" onclick="sendPrompt('Show me the AstroPro onboarding and subscription UI')">Start Basic plan →</button>
+    </div>
+    <div class="plan-card">
+      <div class="plan-name">Pro</div>
+      <div class="plan-price">₹499 <span>/month</span></div>
+      <div class="plan-desc">For power users and professionals</div>
+      <div class="plan-divider"></div>
+      <div class="plan-feature">Everything in Basic</div>
+      <div class="plan-feature">Hindi + regional languages</div>
+      <div class="plan-feature">Unlimited palm readings</div>
+      <div class="plan-feature">5 Vastu analyses/month</div>
+      <div class="plan-feature">Unlimited AI chat</div>
+      <div class="plan-feature">20% discount on live calls</div>
+      <button class="btn-plan btn-plan-ghost" onclick="sendPrompt('Show me the AstroPro Pro plan onboarding UI')">Start Pro plan</button>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<div style="border-top:0.5px solid var(--border2)">
+  <div class="footer">
+    <div class="logo">
+      <div class="logo-icon">✦</div>
+      AstroPro
+    </div>
+    <div class="footer-links">
+      <a href="#">Privacy</a>
+      <a href="#">Terms</a>
+      <a href="#">Support</a>
+      <a href="#">API</a>
+    </div>
+    <div style="font-size:12px">© 2025 AstroPro Technologies Pvt. Ltd.</div>
+  </div>
+</div>
+
+<script>
+const sc = document.getElementById('stars');
+for(let i=0;i<40;i++){
+  const s=document.createElement('div');
+  s.className='star';
+  const sz=Math.random()*2+1;
+  s.style.cssText=`width:${sz}px;height:${sz}px;top:${Math.random()*100}%;left:${Math.random()*100}%;animation-delay:${Math.random()*4}s;animation-duration:${2+Math.random()*3}s`;
+  sc.appendChild(s);
+}
+</script>

@@ -1,0 +1,315 @@
+
+<h2 class="sr-only">AstroPro Kundli dashboard — sidebar navigation, birth chart visualization, planet cards, and AI insight tabs</h2>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0A0A0F;--surface:#13131A;--surface2:#1C1C27;--surface3:#252535;
+  --orange:#F97316;--orange-lt:rgba(249,115,22,0.15);--gold:#F59E0B;
+  --border:rgba(255,255,255,0.07);--border-o:rgba(249,115,22,0.2);
+  --text:#F5F0E8;--muted:#8A8070;--subtle:rgba(245,240,232,0.6)
+}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);display:flex;min-height:100vh;font-size:13px}
+/* SIDEBAR */
+.sidebar{width:220px;background:var(--surface);border-right:0.5px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;position:sticky;top:0;height:100vh}
+.sb-logo{padding:1.2rem 1.2rem 1rem;display:flex;align-items:center;gap:8px;border-bottom:0.5px solid var(--border)}
+.sb-logo-icon{width:26px;height:26px;background:linear-gradient(135deg,#F97316,#F59E0B);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:12px}
+.sb-logo-text{font-size:15px;font-weight:600;letter-spacing:-0.3px}
+.sb-user{padding:1rem 1.2rem;border-bottom:0.5px solid var(--border);display:flex;align-items:center;gap:10px}
+.user-av{width:32px;height:32px;border-radius:50%;background:var(--orange-lt);border:1.5px solid var(--border-o);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:var(--orange);flex-shrink:0}
+.user-name{font-size:12px;font-weight:500}
+.user-plan{font-size:10px;color:var(--orange);background:var(--orange-lt);border-radius:3px;padding:1px 6px;display:inline-block;margin-top:2px}
+.sb-nav{padding:0.8rem 0.6rem;flex:1}
+.sb-section{font-size:10px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;padding:0.6rem 0.6rem 0.3rem}
+.nav-item{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:7px;cursor:pointer;transition:all .15s;color:var(--muted);margin-bottom:1px}
+.nav-item:hover{background:var(--surface2);color:var(--text)}
+.nav-item.active{background:var(--orange-lt);color:var(--orange);border:0.5px solid var(--border-o)}
+.nav-icon{font-size:14px;width:18px;text-align:center}
+.nav-label{font-size:13px}
+.nav-badge{margin-left:auto;background:var(--orange);color:#fff;font-size:9px;font-weight:600;padding:1px 5px;border-radius:3px}
+.sb-bottom{padding:1rem;border-top:0.5px solid var(--border)}
+/* MAIN */
+.main{flex:1;display:flex;flex-direction:column;min-width:0;overflow:auto}
+.topbar{padding:0 1.5rem;height:52px;border-bottom:0.5px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:var(--surface);flex-shrink:0}
+.tb-title{font-size:14px;font-weight:600}
+.tb-right{display:flex;align-items:center;gap:10px}
+.tb-btn{padding:5px 12px;border-radius:6px;font-size:12px;cursor:pointer;border:none;transition:all .15s}
+.tb-btn-ghost{background:transparent;color:var(--muted);border:0.5px solid var(--border)}
+.tb-btn-ghost:hover{background:var(--surface2);color:var(--text)}
+.tb-btn-orange{background:var(--orange);color:#fff;font-size:12px}
+.tb-btn-orange:hover{background:#EA580C}
+.notif{width:30px;height:30px;border-radius:7px;background:var(--surface2);border:0.5px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;position:relative;font-size:13px}
+.notif-dot{position:absolute;top:5px;right:6px;width:6px;height:6px;background:var(--orange);border-radius:50%;border:1.5px solid var(--surface)}
+/* CONTENT */
+.content{padding:1.5rem;flex:1}
+/* PROFILE HEADER */
+.profile-bar{background:var(--surface);border:0.5px solid var(--border);border-radius:12px;padding:1.2rem 1.5rem;display:flex;align-items:center;gap:1.5rem;margin-bottom:1.5rem}
+.profile-av{width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,var(--orange-lt),rgba(245,158,11,0.2));border:2px solid var(--border-o);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;color:var(--orange);flex-shrink:0}
+.profile-info h2{font-size:15px;font-weight:600;margin-bottom:2px}
+.profile-info p{font-size:12px;color:var(--muted)}
+.profile-chips{display:flex;gap:6px;margin-left:auto;flex-wrap:wrap}
+.chip{padding:4px 10px;border-radius:5px;font-size:11px;font-weight:500;white-space:nowrap}
+.chip-orange{background:var(--orange-lt);color:var(--orange);border:0.5px solid var(--border-o)}
+.chip-gold{background:rgba(245,158,11,0.12);color:#F59E0B;border:0.5px solid rgba(245,158,11,0.25)}
+.chip-blue{background:rgba(59,130,246,0.1);color:#60A5FA;border:0.5px solid rgba(59,130,246,0.2)}
+/* GRID */
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:0.8rem;margin-bottom:1rem}
+.card{background:var(--surface);border:0.5px solid var(--border);border-radius:12px;padding:1.2rem}
+.card-title{font-size:11px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:0.7px;margin-bottom:1rem;display:flex;align-items:center;justify-content:space-between}
+/* STAT CARDS */
+.stat-card{background:var(--surface);border:0.5px solid var(--border);border-radius:10px;padding:1rem}
+.stat-card:hover{border-color:var(--border-o);background:var(--surface2)}
+.stat-label{font-size:11px;color:var(--muted);margin-bottom:4px}
+.stat-val{font-size:20px;font-weight:700;letter-spacing:-0.5px;color:var(--text)}
+.stat-sub{font-size:11px;color:var(--muted);margin-top:3px}
+.stat-badge{display:inline-flex;align-items:center;gap:3px;font-size:10px;padding:2px 7px;border-radius:4px;margin-top:5px}
+/* CHART VISUAL */
+.kundli-chart{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:220px;position:relative}
+.tabs{display:flex;gap:0;border-bottom:0.5px solid var(--border);margin-bottom:1rem}
+.tab{padding:8px 14px;font-size:12px;cursor:pointer;color:var(--muted);border-bottom:2px solid transparent;transition:all .15s}
+.tab:hover{color:var(--text)}
+.tab.active{color:var(--orange);border-bottom-color:var(--orange)}
+/* PLANET CARDS */
+.planet-row{display:flex;flex-direction:column;gap:6px}
+.planet-item{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:7px;cursor:pointer;transition:all .15s}
+.planet-item:hover{background:var(--surface2)}
+.planet-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.planet-name{font-size:12px;font-weight:500;flex:1}
+.planet-sign{font-size:11px;color:var(--muted)}
+.planet-house{font-size:10px;background:var(--surface3);padding:2px 6px;border-radius:4px;color:var(--subtle)}
+.planet-retro{font-size:9px;color:#F59E0B;background:rgba(245,158,11,0.1);padding:1px 5px;border-radius:3px;border:0.5px solid rgba(245,158,11,0.2)}
+/* AI insight */
+.insight-card{background:var(--surface2);border:0.5px solid var(--border-o);border-radius:10px;padding:1rem;margin-bottom:0.8rem;cursor:pointer;transition:all .15s}
+.insight-card:hover{background:var(--surface3);border-color:rgba(249,115,22,0.35)}
+.insight-header{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.insight-icon{font-size:14px}
+.insight-title{font-size:12px;font-weight:600;color:var(--orange)}
+.insight-text{font-size:12px;color:var(--subtle);line-height:1.6}
+.insight-tag{font-size:10px;padding:2px 7px;border-radius:3px;background:var(--orange-lt);color:var(--orange);margin-left:auto}
+/* DASHA */
+.dasha-bar{height:6px;border-radius:3px;background:var(--surface3);margin-top:6px;overflow:hidden}
+.dasha-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--orange),var(--gold))}
+/* SCORE RING */
+.score-ring{width:80px;height:80px;border-radius:50%;background:conic-gradient(var(--orange) 0% 74%,var(--surface3) 74%);display:flex;align-items:center;justify-content:center;position:relative;flex-shrink:0}
+.score-inner{width:60px;height:60px;border-radius:50%;background:var(--surface);display:flex;flex-direction:column;align-items:center;justify-content:center}
+.score-num{font-size:16px;font-weight:700;color:var(--orange)}
+.score-lbl{font-size:9px;color:var(--muted)}
+</style>
+
+<div style="display:flex;min-height:640px">
+<!-- SIDEBAR -->
+<div class="sidebar">
+  <div class="sb-logo">
+    <div class="sb-logo-icon">✦</div>
+    <div class="sb-logo-text">AstroPro</div>
+  </div>
+  <div class="sb-user">
+    <div class="user-av">PR</div>
+    <div>
+      <div class="user-name">Priya Rajan</div>
+      <div class="user-plan">Pro Plan</div>
+    </div>
+  </div>
+  <div class="sb-nav">
+    <div class="sb-section">Main</div>
+    <div class="nav-item"><span class="nav-icon">⊞</span><span class="nav-label">Dashboard</span></div>
+    <div class="nav-item active"><span class="nav-icon">🪐</span><span class="nav-label">Kundli</span></div>
+    <div class="nav-item"><span class="nav-icon">🏠</span><span class="nav-label">Vastu</span></div>
+    <div class="nav-item"><span class="nav-icon">✋</span><span class="nav-label">Palm Reading</span></div>
+    <div class="nav-item" onclick="sendPrompt('Show me the AstroPro chat with astrologer UI')"><span class="nav-icon">💬</span><span class="nav-label">Chat</span><span class="nav-badge">3</span></div>
+    <div class="sb-section">Reports</div>
+    <div class="nav-item"><span class="nav-icon">📄</span><span class="nav-label">My Reports</span></div>
+    <div class="nav-item"><span class="nav-icon">👥</span><span class="nav-label">Family Charts</span></div>
+    <div class="sb-section">Account</div>
+    <div class="nav-item"><span class="nav-icon">⚙</span><span class="nav-label">Settings</span></div>
+  </div>
+  <div class="sb-bottom">
+    <button class="tb-btn tb-btn-orange" style="width:100%;padding:8px" onclick="sendPrompt('Show me the AstroPro admin and analytics dashboard UI')">View Admin →</button>
+  </div>
+</div>
+
+<!-- MAIN CONTENT -->
+<div class="main">
+  <div class="topbar">
+    <div class="tb-title">Kundli Report — Priya Rajan</div>
+    <div class="tb-right">
+      <button class="tb-btn tb-btn-ghost">Share</button>
+      <button class="tb-btn tb-btn-ghost">⬇ Download PDF</button>
+      <button class="tb-btn tb-btn-orange" onclick="sendPrompt('Show me the AstroPro chat with astrologer UI')">Chat with Expert →</button>
+      <div class="notif">🔔<div class="notif-dot"></div></div>
+    </div>
+  </div>
+
+  <div class="content">
+    <!-- PROFILE BAR -->
+    <div class="profile-bar">
+      <div class="profile-av">PR</div>
+      <div class="profile-info">
+        <h2>Priya Rajan</h2>
+        <p>Born 14 April 1996 · 08:30 AM · Mumbai, Maharashtra</p>
+      </div>
+      <div class="profile-chips">
+        <span class="chip chip-orange">Lagna: Mesha</span>
+        <span class="chip chip-gold">Rashi: Mithuna</span>
+        <span class="chip chip-blue">Nakshatra: Punarvasu</span>
+        <span class="chip chip-orange">Dasha: Saturn–Mercury</span>
+      </div>
+    </div>
+
+    <!-- TABS -->
+    <div class="tabs">
+      <div class="tab active" id="t1">Overview</div>
+      <div class="tab" id="t2" onclick="sendPrompt('Show the career tab insights for the AstroPro Kundli dashboard')">Career</div>
+      <div class="tab" id="t3" onclick="sendPrompt('Show the marriage tab insights for the AstroPro Kundli dashboard')">Marriage</div>
+      <div class="tab" id="t4" onclick="sendPrompt('Show the health tab insights for the AstroPro Kundli dashboard')">Health</div>
+      <div class="tab" id="t5">Remedies</div>
+    </div>
+
+    <!-- TOP ROW: CHART + PLANETS -->
+    <div class="grid-2">
+      <!-- KUNDLI CHART -->
+      <div class="card">
+        <div class="card-title">
+          Birth chart
+          <div style="display:flex;gap:6px">
+            <span class="chip chip-orange" style="cursor:pointer">North Indian</span>
+            <span class="chip" style="background:var(--surface3);color:var(--muted);cursor:pointer">South Indian</span>
+          </div>
+        </div>
+        <div class="kundli-chart">
+          <svg width="200" height="200" viewBox="0 0 200 200">
+            <!-- North Indian chart squares -->
+            <rect x="10" y="10" width="180" height="180" fill="none" stroke="rgba(249,115,22,0.25)" stroke-width="0.5"/>
+            <line x1="10" y1="10" x2="100" y2="55" stroke="rgba(249,115,22,0.2)" stroke-width="0.5"/>
+            <line x1="190" y1="10" x2="100" y2="55" stroke="rgba(249,115,22,0.2)" stroke-width="0.5"/>
+            <line x1="10" y1="10" x2="55" y2="100" stroke="rgba(249,115,22,0.2)" stroke-width="0.5"/>
+            <line x1="10" y1="190" x2="55" y2="100" stroke="rgba(249,115,22,0.2)" stroke-width="0.5"/>
+            <line x1="190" y1="10" x2="145" y2="100" stroke="rgba(249,115,22,0.2)" stroke-width="0.5"/>
+            <line x1="190" y1="190" x2="145" y2="100" stroke="rgba(249,115,22,0.2)" stroke-width="0.5"/>
+            <line x1="10" y1="190" x2="100" y2="145" stroke="rgba(249,115,22,0.2)" stroke-width="0.5"/>
+            <line x1="190" y1="190" x2="100" y2="145" stroke="rgba(249,115,22,0.2)" stroke-width="0.5"/>
+            <!-- Center diamond -->
+            <polygon points="100,55 145,100 100,145 55,100" fill="rgba(249,115,22,0.05)" stroke="rgba(249,115,22,0.3)" stroke-width="0.5"/>
+            <!-- Planet labels -->
+            <text x="100" y="40" text-anchor="middle" fill="rgba(249,115,22,0.9)" font-size="9" font-family="Inter,system-ui">As·Sun</text>
+            <text x="160" y="40" text-anchor="middle" fill="rgba(245,158,11,0.85)" font-size="8" font-family="Inter,system-ui">Moon</text>
+            <text x="178" y="100" text-anchor="middle" fill="rgba(245,240,232,0.7)" font-size="8" font-family="Inter,system-ui">Mars</text>
+            <text x="160" y="170" text-anchor="middle" fill="rgba(245,240,232,0.6)" font-size="8" font-family="Inter,system-ui">Merc</text>
+            <text x="100" y="172" text-anchor="middle" fill="rgba(99,102,241,0.9)" font-size="8" font-family="Inter,system-ui">Jup</text>
+            <text x="42" y="170" text-anchor="middle" fill="rgba(245,240,232,0.6)" font-size="8" font-family="Inter,system-ui">Ven</text>
+            <text x="22" y="100" text-anchor="middle" fill="rgba(245,240,232,0.7)" font-size="8" font-family="Inter,system-ui">Sat</text>
+            <text x="100" y="105" text-anchor="middle" fill="rgba(245,158,11,0.7)" font-size="8" font-family="Inter,system-ui">Ra·Ke</text>
+            <!-- Lagna marker -->
+            <polygon points="100,55 110,65 90,65" fill="rgba(249,115,22,0.4)"/>
+          </svg>
+        </div>
+      </div>
+
+      <!-- PLANET POSITIONS -->
+      <div class="card">
+        <div class="card-title">Planet positions</div>
+        <div class="planet-row">
+          <div class="planet-item">
+            <div class="planet-dot" style="background:#F97316"></div>
+            <div class="planet-name">Sun</div>
+            <div class="planet-sign">Mesha (Aries)</div>
+            <div class="planet-house">H1</div>
+          </div>
+          <div class="planet-item">
+            <div class="planet-dot" style="background:#C4B5FD"></div>
+            <div class="planet-name">Moon</div>
+            <div class="planet-sign">Mithuna (Gemini)</div>
+            <div class="planet-house">H3</div>
+          </div>
+          <div class="planet-item">
+            <div class="planet-dot" style="background:#F87171"></div>
+            <div class="planet-name">Mars</div>
+            <div class="planet-sign">Makara (Capricorn)</div>
+            <div class="planet-house">H10</div>
+          </div>
+          <div class="planet-item">
+            <div class="planet-dot" style="background:#6EE7B7"></div>
+            <div class="planet-name">Mercury</div>
+            <div class="planet-sign">Meena (Pisces)</div>
+            <div class="planet-house">H12</div>
+            <div class="planet-retro">℞</div>
+          </div>
+          <div class="planet-item">
+            <div class="planet-dot" style="background:#FCD34D"></div>
+            <div class="planet-name">Jupiter</div>
+            <div class="planet-sign">Vrishabha (Taurus)</div>
+            <div class="planet-house">H2</div>
+          </div>
+          <div class="planet-item">
+            <div class="planet-dot" style="background:#F9A8D4"></div>
+            <div class="planet-name">Venus</div>
+            <div class="planet-sign">Meena (Pisces) ♒</div>
+            <div class="planet-house">H12</div>
+          </div>
+          <div class="planet-item">
+            <div class="planet-dot" style="background:#94A3B8"></div>
+            <div class="planet-name">Saturn</div>
+            <div class="planet-sign">Kumbha (Aquarius)</div>
+            <div class="planet-house">H11</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MIDDLE ROW: STATS -->
+    <div class="grid-3" style="margin-bottom:1rem">
+      <div class="stat-card">
+        <div class="stat-label">Yoga strength</div>
+        <div class="stat-val">7 Yogas</div>
+        <div class="stat-sub">Gaja Kesari · Budha-Aditya</div>
+        <span class="stat-badge" style="background:rgba(249,115,22,0.12);color:var(--orange)">★ Strong</span>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Active Dasha</div>
+        <div class="stat-val">Saturn</div>
+        <div class="stat-sub">Sub: Mercury · 2.4 yrs remain</div>
+        <div class="dasha-bar"><div class="dasha-fill" style="width:62%"></div></div>
+      </div>
+      <div class="stat-card">
+        <div style="display:flex;align-items:center;gap:12px">
+          <div class="score-ring"><div class="score-inner"><div class="score-num">74</div><div class="score-lbl">score</div></div></div>
+          <div>
+            <div class="stat-label">Overall chart</div>
+            <div style="font-size:14px;font-weight:600;color:var(--text);margin-top:4px">Good</div>
+            <div class="stat-sub">No severe doshas</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BOTTOM ROW: AI INSIGHTS -->
+    <div class="card">
+      <div class="card-title">AI insights <span style="background:rgba(249,115,22,0.12);color:var(--orange);font-size:10px;padding:2px 8px;border-radius:4px;font-weight:500;margin-left:6px">GPT-4o</span></div>
+      <div class="insight-card" onclick="sendPrompt('Tell me more about the Gaja Kesari Yoga in my Kundli')">
+        <div class="insight-header">
+          <span class="insight-icon">⭐</span>
+          <div class="insight-title">Gaja Kesari Yoga detected</div>
+          <span class="insight-tag">Prosperity</span>
+        </div>
+        <div class="insight-text">Jupiter in the 2nd house from Moon creates a powerful Gaja Kesari Yoga. This brings financial stability, social respect, and an authoritative presence throughout life. The effect intensifies during Jupiter's Dasha periods.</div>
+      </div>
+      <div class="insight-card" onclick="sendPrompt('Tell me about the Saturn Dasha period in my Kundli')">
+        <div class="insight-header">
+          <span class="insight-icon">🪐</span>
+          <div class="insight-title">Saturn Dasha — current phase analysis</div>
+          <span class="insight-tag">Active</span>
+        </div>
+        <div class="insight-text">Your current Saturn Dasha (2019–2038) brings disciplined growth. Saturn in the 11th house is favourably placed for career and income. The sub-period of Mercury (until late 2026) supports technology-related work and communication skills.</div>
+      </div>
+      <div class="insight-card" onclick="sendPrompt('Explain the Venus exaltation placement in my Kundli')">
+        <div class="insight-header">
+          <span class="insight-icon">💫</span>
+          <div class="insight-title">Venus exalted in Pisces (12th house)</div>
+          <span class="insight-tag">Special</span>
+        </div>
+        <div class="insight-text">Exalted Venus in the 12th house indicates deep spiritual inclinations and hidden artistic talents. While worldly relationships may require effort, there is profound inner beauty and potential for spiritual partnerships.</div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>

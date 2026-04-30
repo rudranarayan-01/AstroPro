@@ -1,0 +1,261 @@
+
+<h2 class="sr-only">AstroPro admin and enterprise analytics dashboard with user metrics, revenue charts, API usage, and subscription management</h2>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0A0A0F;--surface:#13131A;--surface2:#1C1C27;--surface3:#252535;
+  --orange:#F97316;--orange-lt:rgba(249,115,22,0.12);--gold:#F59E0B;
+  --green:#22C55E;--green-lt:rgba(34,197,94,0.12);
+  --blue:#60A5FA;--blue-lt:rgba(96,165,250,0.1);
+  --red:#F87171;--red-lt:rgba(248,113,113,0.1);
+  --border:rgba(255,255,255,0.07);--border-o:rgba(249,115,22,0.2);
+  --text:#F5F0E8;--muted:#8A8070;--subtle:rgba(245,240,232,0.6)
+}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);display:flex;min-height:100vh;font-size:13px}
+.sidebar{width:200px;background:var(--surface);border-right:0.5px solid var(--border);flex-shrink:0;display:flex;flex-direction:column}
+.sb-top{padding:1rem;border-bottom:0.5px solid var(--border);display:flex;align-items:center;gap:8px}
+.sb-badge{background:rgba(249,115,22,0.2);color:var(--orange);font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px;margin-left:auto}
+.nav-item{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:7px;cursor:pointer;color:var(--muted);margin:2px 6px;font-size:12px;transition:all .15s}
+.nav-item:hover{background:var(--surface2);color:var(--text)}
+.nav-item.active{background:var(--orange-lt);color:var(--orange)}
+.main{flex:1;display:flex;flex-direction:column;min-width:0}
+.topbar{height:50px;background:var(--surface);border-bottom:0.5px solid var(--border);padding:0 1.5rem;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.tb-left{font-size:14px;font-weight:600;display:flex;align-items:center;gap:8px}
+.tb-right{display:flex;gap:8px;align-items:center}
+.tb-btn{padding:5px 12px;border-radius:6px;font-size:11px;font-weight:500;cursor:pointer;border:none;transition:all .15s}
+.tb-btn-ghost{background:transparent;color:var(--muted);border:0.5px solid var(--border)}
+.tb-btn-ghost:hover{background:var(--surface2);color:var(--text)}
+.tb-btn-orange{background:var(--orange);color:#fff}
+.content{padding:1.2rem;flex:1;overflow-y:auto}
+/* KPI CARDS */
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:0.8rem;margin-bottom:1.2rem}
+.kpi{background:var(--surface);border:0.5px solid var(--border);border-radius:10px;padding:1rem;transition:border-color .2s}
+.kpi:hover{border-color:var(--border-o)}
+.kpi-label{font-size:11px;color:var(--muted);margin-bottom:4px}
+.kpi-val{font-size:22px;font-weight:700;letter-spacing:-0.5px;margin-bottom:3px}
+.kpi-delta{font-size:11px;display:flex;align-items:center;gap:3px}
+.kpi-delta.up{color:var(--green)}
+.kpi-delta.down{color:var(--red)}
+/* CHART AREA */
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:0.8rem;margin-bottom:0.8rem}
+.grid-3{display:grid;grid-template-columns:1.6fr 1fr 1fr;gap:0.8rem;margin-bottom:0.8rem}
+.card{background:var(--surface);border:0.5px solid var(--border);border-radius:10px;padding:1rem}
+.card-title{font-size:11px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:0.7px;margin-bottom:0.8rem;display:flex;align-items:center;justify-content:space-between}
+/* BAR CHART */
+.bar-chart{display:flex;align-items:flex-end;gap:4px;height:80px;padding-bottom:0}
+.bar{flex:1;border-radius:3px 3px 0 0;position:relative;cursor:pointer;transition:opacity .15s;min-width:0}
+.bar:hover{opacity:0.8}
+.bar-label{position:absolute;bottom:-16px;left:50%;transform:translateX(-50%);font-size:9px;color:var(--muted);white-space:nowrap}
+/* LINE CHART */
+.line-chart{position:relative;height:80px}
+/* TABLE */
+.data-table{width:100%;border-collapse:collapse}
+.data-table th{font-size:10px;color:var(--muted);font-weight:500;text-align:left;padding:6px 8px;border-bottom:0.5px solid var(--border)}
+.data-table td{font-size:12px;padding:8px 8px;border-bottom:0.5px solid rgba(255,255,255,0.04)}
+.data-table tr:hover td{background:var(--surface2)}
+.data-table tr:last-child td{border-bottom:none}
+.status-badge{padding:2px 7px;border-radius:4px;font-size:10px;font-weight:500}
+.status-active{background:var(--green-lt);color:var(--green)}
+.status-cancelled{background:var(--red-lt);color:var(--red)}
+.status-trial{background:var(--blue-lt);color:var(--blue)}
+/* DONUT */
+.donut-wrap{display:flex;align-items:center;gap:1rem}
+.donut-legend{display:flex;flex-direction:column;gap:6px;font-size:11px}
+.legend-item{display:flex;align-items:center;gap:6px}
+.legend-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+/* SPARKLINE */
+.sparkline{display:flex;align-items:flex-end;gap:2px;height:32px}
+.spark{width:4px;border-radius:2px 2px 0 0}
+/* API METRICS */
+.api-row{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:0.5px solid rgba(255,255,255,0.04)}
+.api-name{font-size:12px}
+.api-count{font-size:12px;font-weight:600;color:var(--orange)}
+.api-bar-wrap{width:80px;height:4px;background:var(--surface3);border-radius:2px;overflow:hidden}
+.api-bar-fill{height:100%;border-radius:2px;background:var(--orange)}
+</style>
+
+<div style="display:flex;min-height:640px">
+<div class="sidebar">
+  <div class="sb-top">
+    <div style="font-size:15px;font-weight:700">AstroPro</div>
+    <div class="sb-badge">Admin</div>
+  </div>
+  <div style="padding:0.6rem 0">
+    <div style="font-size:10px;color:var(--muted);padding:6px 16px;text-transform:uppercase;letter-spacing:0.8px">Overview</div>
+    <div class="nav-item active">⊞ Dashboard</div>
+    <div class="nav-item">👥 Users</div>
+    <div class="nav-item">💰 Revenue</div>
+    <div class="nav-item">🪐 Kundlis</div>
+    <div style="font-size:10px;color:var(--muted);padding:6px 16px;margin-top:8px;text-transform:uppercase;letter-spacing:0.8px">Platform</div>
+    <div class="nav-item" onclick="sendPrompt('Show me the astrologer management UI for AstroPro admin')">👨‍🏫 Astrologers</div>
+    <div class="nav-item">📊 API Usage</div>
+    <div class="nav-item">📦 Subscriptions</div>
+    <div class="nav-item">⚙ Settings</div>
+    <div style="font-size:10px;color:var(--muted);padding:6px 16px;margin-top:8px;text-transform:uppercase;letter-spacing:0.8px">Reports</div>
+    <div class="nav-item">📄 Logs</div>
+    <div class="nav-item">🚨 Alerts <span style="background:var(--red-lt);color:var(--red);font-size:10px;padding:1px 5px;border-radius:3px;margin-left:auto">2</span></div>
+  </div>
+</div>
+
+<div class="main">
+  <div class="topbar">
+    <div class="tb-left">
+      Platform Overview
+      <span style="background:var(--green-lt);color:var(--green);font-size:10px;padding:2px 8px;border-radius:4px;font-weight:500">● All systems operational</span>
+    </div>
+    <div class="tb-right">
+      <select class="tb-btn tb-btn-ghost" style="cursor:pointer">
+        <option>Last 30 days</option>
+        <option>Last 7 days</option>
+        <option>This month</option>
+      </select>
+      <button class="tb-btn tb-btn-ghost">⬇ Export</button>
+      <button class="tb-btn tb-btn-orange" onclick="sendPrompt('Show me the AstroPro landing page')">View site →</button>
+    </div>
+  </div>
+
+  <div class="content">
+    <!-- KPI CARDS -->
+    <div class="kpi-grid">
+      <div class="kpi">
+        <div class="kpi-label">Total users</div>
+        <div class="kpi-val">2.41M</div>
+        <div class="kpi-delta up">↑ 12.4% vs last month</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-label">Monthly revenue</div>
+        <div class="kpi-val">₹48.2L</div>
+        <div class="kpi-delta up">↑ 8.9% vs last month</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-label">Kundlis generated</div>
+        <div class="kpi-val">18,421</div>
+        <div class="kpi-delta up">↑ 21.3% vs last month</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-label">Churn rate</div>
+        <div class="kpi-val">2.1%</div>
+        <div class="kpi-delta down">↓ 0.4% vs last month</div>
+      </div>
+    </div>
+
+    <!-- REVENUE CHART + PLAN SPLIT -->
+    <div class="grid-3">
+      <div class="card">
+        <div class="card-title">Daily signups (30d) <span style="color:var(--orange)">+12.4%</span></div>
+        <div class="bar-chart" id="barChart">
+        </div>
+        <div style="height:20px"></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Plan distribution</div>
+        <div class="donut-wrap">
+          <svg width="64" height="64" viewBox="0 0 64 64">
+            <circle cx="32" cy="32" r="24" fill="none" stroke="#252535" stroke-width="10"/>
+            <circle cx="32" cy="32" r="24" fill="none" stroke="#F97316" stroke-width="10" stroke-dasharray="60 151" stroke-dashoffset="25" transform="rotate(-90 32 32)"/>
+            <circle cx="32" cy="32" r="24" fill="none" stroke="#F59E0B" stroke-width="10" stroke-dasharray="45 151" stroke-dashoffset="-35" transform="rotate(-90 32 32)"/>
+            <circle cx="32" cy="32" r="24" fill="none" stroke="#60A5FA" stroke-width="10" stroke-dasharray="46 151" stroke-dashoffset="-80" transform="rotate(-90 32 32)"/>
+          </svg>
+          <div class="donut-legend">
+            <div class="legend-item"><div class="legend-dot" style="background:#252535"></div><span style="color:var(--muted)">Free: 58%</span></div>
+            <div class="legend-item"><div class="legend-dot" style="background:var(--orange)"></div><span>Basic: 28%</span></div>
+            <div class="legend-item"><div class="legend-dot" style="background:var(--gold)"></div><span>Pro: 10%</span></div>
+            <div class="legend-item"><div class="legend-dot" style="background:var(--blue)"></div><span>Ent: 4%</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">Feature usage</div>
+        <div class="api-row">
+          <div class="api-name">Kundli gen</div>
+          <div class="api-bar-wrap"><div class="api-bar-fill" style="width:92%"></div></div>
+          <div class="api-count">18.4K</div>
+        </div>
+        <div class="api-row">
+          <div class="api-name">AI chat</div>
+          <div class="api-bar-wrap"><div class="api-bar-fill" style="width:78%;background:var(--gold)"></div></div>
+          <div class="api-count" style="color:var(--gold)">82.1K</div>
+        </div>
+        <div class="api-row">
+          <div class="api-name">Horoscope</div>
+          <div class="api-bar-wrap"><div class="api-bar-fill" style="width:65%;background:var(--blue)"></div></div>
+          <div class="api-count" style="color:var(--blue)">312K</div>
+        </div>
+        <div class="api-row">
+          <div class="api-name">Palm scan</div>
+          <div class="api-bar-wrap"><div class="api-bar-fill" style="width:32%;background:#A78BFA"></div></div>
+          <div class="api-count" style="color:#A78BFA">4.2K</div>
+        </div>
+        <div class="api-row" style="border:none">
+          <div class="api-name">Vastu</div>
+          <div class="api-bar-wrap"><div class="api-bar-fill" style="width:18%;background:#34D399"></div></div>
+          <div class="api-count" style="color:#34D399">1.1K</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RECENT USERS TABLE + AI COSTS -->
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-title">Recent subscriptions <button class="tb-btn tb-btn-ghost" style="font-size:10px;padding:3px 8px">View all →</button></div>
+        <table class="data-table">
+          <thead><tr><th>User</th><th>Plan</th><th>Amount</th><th>Status</th></tr></thead>
+          <tbody>
+            <tr><td>Priya R.</td><td>Pro</td><td>₹499</td><td><span class="status-badge status-active">Active</span></td></tr>
+            <tr><td>Ramesh S.</td><td>Basic</td><td>₹199</td><td><span class="status-badge status-active">Active</span></td></tr>
+            <tr><td>Anita M.</td><td>Pro</td><td>₹499</td><td><span class="status-badge status-trial">Trial</span></td></tr>
+            <tr><td>Vikram P.</td><td>Basic</td><td>₹199</td><td><span class="status-badge status-cancelled">Cancelled</span></td></tr>
+            <tr><td>Deepa K.</td><td>Enterprise</td><td>₹4,999</td><td><span class="status-badge status-active">Active</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="card">
+        <div class="card-title">AI cost monitoring <span style="color:var(--green);font-size:10px">Within budget</span></div>
+        <div class="data-table" style="width:100%">
+          <div style="display:table;width:100%">
+            <div style="display:table-row">
+              <div style="display:table-cell;font-size:10px;color:var(--muted);padding:6px 8px;border-bottom:0.5px solid var(--border)">Model</div>
+              <div style="display:table-cell;font-size:10px;color:var(--muted);padding:6px 8px;border-bottom:0.5px solid var(--border)">Tokens/day</div>
+              <div style="display:table-cell;font-size:10px;color:var(--muted);padding:6px 8px;border-bottom:0.5px solid var(--border)">Daily cost</div>
+            </div>
+            ${[
+              ['GPT-4o','18.4M','₹ 1,870'],
+              ['text-embed-3','2.1M','₹ 42'],
+              ['GPT-4o Vision','420K','₹ 380'],
+            ].map(([a,b,c],i)=>`<div style="display:table-row${i===2?'':';border-bottom:0.5px solid rgba(255,255,255,0.04)'}"><div style="display:table-cell;font-size:12px;padding:8px 8px">${a}</div><div style="display:table-cell;font-size:12px;padding:8px 8px;color:var(--muted)">${b}</div><div style="display:table-cell;font-size:12px;padding:8px 8px;font-weight:600;color:var(--orange)">${c}</div></div>`).join('')}
+          </div>
+        </div>
+        <div style="margin-top:1rem">
+          <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:4px">
+            <span>Monthly budget utilisation</span><span style="color:var(--orange);font-weight:600">₹68.4K / ₹1L</span>
+          </div>
+          <div style="height:5px;background:var(--surface3);border-radius:3px;overflow:hidden">
+            <div style="height:100%;width:68%;background:linear-gradient(90deg,var(--green),var(--gold));border-radius:3px"></div>
+          </div>
+          <div style="font-size:10px;color:var(--muted);margin-top:4px">68% of budget used · 12 days remaining</div>
+        </div>
+        <div style="margin-top:1rem;padding-top:0.8rem;border-top:0.5px solid var(--border)">
+          <div style="font-size:11px;color:var(--muted);margin-bottom:6px">Live astrologer GMV (this month)</div>
+          <div style="font-size:20px;font-weight:700;color:var(--gold)">₹3,24,800</div>
+          <div style="font-size:11px;color:var(--muted)">Platform cut (20%): <span style="color:var(--green);font-weight:500">₹64,960</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<script>
+const bars = document.getElementById('barChart');
+const vals = [42,58,35,71,89,62,78,91,55,67,84,73,95,88,76,102,118,95,87,108,124,99,115,132,108,127,144,136,158,142];
+const maxV = Math.max(...vals);
+vals.forEach((v,i)=>{
+  const days=['1','','','','5','','','','','10','','','','','15','','','','','20','','','','','25','','','','','30'];
+  const b=document.createElement('div');
+  b.className='bar';
+  const pct=Math.round((v/maxV)*100);
+  b.style.cssText=`height:${pct}%;background:${i>=24?'#F97316':'rgba(249,115,22,0.35)'};border-radius:3px 3px 0 0`;
+  b.innerHTML=`<span class="bar-label">${days[i]}</span>`;
+  bars.appendChild(b);
+});
+</script>

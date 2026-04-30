@@ -1,0 +1,293 @@
+
+<h2 class="sr-only">AstroPro Kundli generator multi-step form — name, date of birth, time, and place of birth</h2>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0A0A0F;--surface:#13131A;--surface2:#1C1C27;--surface3:#252535;
+  --orange:#F97316;--orange-lt:rgba(249,115,22,0.12);--gold:#F59E0B;
+  --border:rgba(255,255,255,0.08);--border-o:rgba(249,115,22,0.3);
+  --text:#F5F0E8;--muted:#8A8070;--subtle:rgba(245,240,232,0.55)
+}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:2rem}
+.wrapper{max-width:560px;width:100%}
+/* STEPS INDICATOR */
+.steps{display:flex;align-items:center;justify-content:center;gap:0;margin-bottom:2.5rem}
+.step-item{display:flex;align-items:center;gap:0}
+.step-circle{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;border:1.5px solid var(--border);color:var(--muted);background:var(--surface2);transition:all .3s;position:relative;z-index:1}
+.step-circle.done{background:var(--orange);border-color:var(--orange);color:#fff}
+.step-circle.active{border-color:var(--orange);color:var(--orange);background:var(--orange-lt)}
+.step-line{width:60px;height:1px;background:var(--border);transition:background .3s}
+.step-line.done{background:var(--orange)}
+.step-label{font-size:10px;color:var(--muted);text-align:center;position:absolute;top:42px;left:50%;transform:translateX(-50%);white-space:nowrap}
+.step-wrap{position:relative;display:flex;flex-direction:column;align-items:center}
+/* FORM CARD */
+.form-card{background:var(--surface);border:0.5px solid var(--border);border-radius:16px;padding:2rem;position:relative;overflow:hidden}
+.form-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--orange),var(--gold),transparent)}
+.form-title{font-size:20px;font-weight:700;letter-spacing:-0.5px;margin-bottom:0.4rem}
+.form-sub{font-size:13px;color:var(--muted);margin-bottom:1.8rem;line-height:1.5}
+/* INPUTS */
+.field{margin-bottom:1.2rem}
+.field-label{font-size:12px;font-weight:500;color:var(--subtle);margin-bottom:0.5rem;display:block}
+.field-input{width:100%;background:var(--surface2);border:0.5px solid var(--border);border-radius:8px;padding:11px 14px;color:var(--text);font-size:14px;font-family:inherit;outline:none;transition:border-color .15s}
+.field-input::placeholder{color:var(--muted)}
+.field-input:focus{border-color:var(--orange)}
+.field-input:focus+.field-hint{display:block}
+.field-hint{display:none;font-size:11px;color:var(--orange);margin-top:4px}
+.date-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.time-row{display:grid;grid-template-columns:1fr 1fr auto;gap:8px;align-items:end}
+.ampm-toggle{display:flex;border-radius:8px;overflow:hidden;border:0.5px solid var(--border)}
+.ampm-btn{flex:1;padding:11px 10px;font-size:13px;font-weight:500;cursor:pointer;border:none;background:var(--surface2);color:var(--muted);transition:all .15s}
+.ampm-btn.active{background:var(--orange);color:#fff}
+.place-wrap{position:relative}
+.place-icon{position:absolute;right:12px;top:50%;transform:translateY(-50%);font-size:14px;color:var(--muted)}
+/* VALIDATION */
+.valid-check{position:absolute;right:12px;top:50%;transform:translateY(-50%);font-size:12px;color:#22C55E}
+/* GENDER */
+.gender-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.gender-opt{padding:10px;border-radius:8px;border:0.5px solid var(--border);background:var(--surface2);text-align:center;cursor:pointer;font-size:13px;color:var(--muted);transition:all .15s}
+.gender-opt:hover{border-color:var(--border-o)}
+.gender-opt.selected{border-color:var(--orange);background:var(--orange-lt);color:var(--orange)}
+/* BUTTONS */
+.btn-row{display:flex;justify-content:space-between;align-items:center;margin-top:1.8rem}
+.btn{padding:10px 24px;border-radius:8px;font-size:14px;font-weight:500;cursor:pointer;border:none;transition:all .2s}
+.btn-back{background:transparent;color:var(--muted);border:0.5px solid var(--border)}
+.btn-back:hover{background:var(--surface2);color:var(--text)}
+.btn-next{background:var(--orange);color:#fff;padding:10px 28px}
+.btn-next:hover{background:#EA580C}
+.btn-next:disabled{background:var(--surface3);color:var(--muted);cursor:not-allowed}
+.progress-text{font-size:12px;color:var(--muted)}
+/* SUMMARY BOX */
+.summary-row{display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--surface2);border:0.5px solid var(--border);border-radius:8px;margin-bottom:8px}
+.summary-icon{font-size:16px}
+.summary-lbl{font-size:11px;color:var(--muted)}
+.summary-val{font-size:13px;font-weight:500;margin-top:1px}
+/* LOADING */
+.gen-loading{text-align:center;padding:1rem 0}
+.gen-ring{width:56px;height:56px;border-radius:50%;border:3px solid var(--surface3);border-top-color:var(--orange);animation:spin .8s linear infinite;margin:0 auto 1rem}
+@keyframes spin{to{transform:rotate(360deg)}}
+.gen-text{font-size:14px;font-weight:500;color:var(--text)}
+.gen-sub{font-size:12px;color:var(--muted);margin-top:4px}
+</style>
+
+<div class="wrapper">
+  <!-- Steps -->
+  <div class="steps" style="margin-bottom:3rem">
+    <div class="step-wrap">
+      <div class="step-circle done" id="sc1">✓<span class="step-label">Name</span></div>
+    </div>
+    <div class="step-line done" id="sl1"></div>
+    <div class="step-wrap">
+      <div class="step-circle active" id="sc2">2<span class="step-label">Birth date</span></div>
+    </div>
+    <div class="step-line" id="sl2"></div>
+    <div class="step-wrap">
+      <div class="step-circle" id="sc3">3<span class="step-label">Birth time</span></div>
+    </div>
+    <div class="step-line" id="sl3"></div>
+    <div class="step-wrap">
+      <div class="step-circle" id="sc4">4<span class="step-label">Location</span></div>
+    </div>
+  </div>
+
+  <!-- STEP 1: NAME (shown briefly, then transitions) -->
+  <div class="form-card" id="step1" style="display:none">
+    <div class="form-title">What's your name?</div>
+    <div class="form-sub">We'll personalise your Kundli report with this name. Enter the name as it appears on your birth certificate for best results.</div>
+    <div class="field">
+      <label class="field-label">Full name</label>
+      <div style="position:relative">
+        <input class="field-input" id="name" placeholder="e.g. Priya Rajan" value="Priya Rajan"/>
+        <span class="valid-check">✓</span>
+      </div>
+    </div>
+    <div class="field">
+      <label class="field-label">Gender (for certain Dosha calculations)</label>
+      <div class="gender-row">
+        <div class="gender-opt selected" id="gF" onclick="selGender('female','gF','gM','gO')">Female ♀</div>
+        <div class="gender-opt" id="gM" onclick="selGender('male','gM','gF','gO')">Male ♂</div>
+        <div class="gender-opt" id="gO" onclick="selGender('other','gO','gF','gM')">Other</div>
+      </div>
+    </div>
+    <div class="btn-row">
+      <span class="progress-text">Step 1 of 4</span>
+      <button class="btn btn-next" onclick="goStep(2)">Continue →</button>
+    </div>
+  </div>
+
+  <!-- STEP 2: DOB -->
+  <div class="form-card" id="step2">
+    <div class="form-title">When were you born?</div>
+    <div class="form-sub">Your exact date of birth determines your Lagna, Rashi, and Nakshatra — the foundation of your Kundli.</div>
+    <div class="field">
+      <label class="field-label">Date of birth</label>
+      <div class="date-row">
+        <div style="position:relative">
+          <select class="field-input" id="dob-day" style="cursor:pointer">
+            <option>Day</option>
+            ${Array.from({length:31},(_,i)=>`<option${i===13?' selected':''}>${i+1}</option>`).join('')}
+          </select>
+        </div>
+        <div>
+          <select class="field-input" id="dob-month" style="cursor:pointer">
+            ${['Month','January','February','March','April','May','June','July','August','September','October','November','December'].map((m,i)=>`<option${i===4?' selected':''}>${m}</option>`).join('')}
+          </select>
+        </div>
+        <div>
+          <select class="field-input" id="dob-year" style="cursor:pointer">
+            <option>Year</option>
+            ${Array.from({length:80},(_,i)=>`<option${i===29?' selected':''}>${2024-i}</option>`).join('')}
+          </select>
+        </div>
+      </div>
+      <div style="font-size:11px;color:var(--muted);margin-top:6px">14 April 1996 · Age: 28 · Ayanamsa: Lahiri</div>
+    </div>
+    <div class="field">
+      <label class="field-label">Is this your own chart or someone else's?</label>
+      <div style="display:flex;gap:8px">
+        <div class="gender-opt selected" style="flex:1" id="pSelf">Myself</div>
+        <div class="gender-opt" style="flex:1" id="pOther" onclick="selProfile()">Family member</div>
+        <div class="gender-opt" style="flex:1">Partner</div>
+      </div>
+    </div>
+    <div class="btn-row">
+      <span class="progress-text">Step 2 of 4</span>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-back" onclick="goStep(1)">← Back</button>
+        <button class="btn btn-next" onclick="goStep(3)">Continue →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 3: TIME -->
+  <div class="form-card" id="step3" style="display:none">
+    <div class="form-title">What time were you born?</div>
+    <div class="form-sub">Birth time determines your Lagna (ascendant) and the exact house positions of planets. Even an approximate time is better than none.</div>
+    <div class="field">
+      <label class="field-label">Time of birth</label>
+      <div class="time-row">
+        <div>
+          <label class="field-label" style="font-size:11px">Hour</label>
+          <select class="field-input" style="cursor:pointer">
+            ${Array.from({length:12},(_,i)=>`<option${i===7?' selected':''}>${String(i+1).padStart(2,'0')}</option>`).join('')}
+          </select>
+        </div>
+        <div>
+          <label class="field-label" style="font-size:11px">Minute</label>
+          <select class="field-input" style="cursor:pointer">
+            ${Array.from({length:12},(_,i)=>`<option${i===6?' selected':''}>${String(i*5).padStart(2,'0')}</option>`).join('')}
+          </select>
+        </div>
+        <div class="ampm-toggle">
+          <button class="ampm-btn active">AM</button>
+          <button class="ampm-btn" onclick="this.classList.add('active');this.previousElementSibling.classList.remove('active')">PM</button>
+        </div>
+      </div>
+    </div>
+    <div class="field">
+      <label class="field-label">How certain are you of the birth time?</label>
+      <div style="display:flex;gap:6px;flex-wrap:wrap">
+        <div class="gender-opt selected" style="font-size:12px;padding:8px 12px">Exact (hospital records)</div>
+        <div class="gender-opt" style="font-size:12px;padding:8px 12px">Approximate (±30 min)</div>
+        <div class="gender-opt" style="font-size:12px;padding:8px 12px">Unknown</div>
+      </div>
+      <div style="font-size:11px;color:var(--muted);margin-top:8px">⚠️ Unknown time will reduce Lagna accuracy. We'll use solar noon as default.</div>
+    </div>
+    <div class="btn-row">
+      <span class="progress-text">Step 3 of 4</span>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-back" onclick="goStep(2)">← Back</button>
+        <button class="btn btn-next" onclick="goStep(4)">Continue →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 4: PLACE -->
+  <div class="form-card" id="step4" style="display:none">
+    <div class="form-title">Where were you born?</div>
+    <div class="form-sub">The exact city or village determines longitude, latitude, and timezone — all essential for accurate planetary calculations.</div>
+    <div class="field">
+      <label class="field-label">City or village of birth</label>
+      <div class="place-wrap">
+        <input class="field-input" id="place" placeholder="Start typing a city..." value="Mumbai, Maharashtra, India"/>
+        <span class="place-icon">📍</span>
+      </div>
+      <div style="font-size:11px;color:var(--muted);margin-top:6px">Detected: 19.0760° N, 72.8777° E · IST (UTC+5:30)</div>
+    </div>
+    <div class="field">
+      <label class="field-label">Confirm timezone</label>
+      <select class="field-input" style="cursor:pointer">
+        <option selected>IST — India Standard Time (UTC+5:30)</option>
+        <option>PST — Pacific Standard Time</option>
+        <option>EST — Eastern Standard Time</option>
+        <option>GMT — Greenwich Mean Time</option>
+      </select>
+    </div>
+    <div class="btn-row">
+      <span class="progress-text">Step 4 of 4</span>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-back" onclick="goStep(3)">← Back</button>
+        <button class="btn btn-next" onclick="goGenerate()">Generate Kundli ✦</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- GENERATING -->
+  <div class="form-card" id="stepGen" style="display:none">
+    <div class="gen-loading">
+      <div class="gen-ring"></div>
+      <div class="gen-text" id="genText">Computing planetary positions...</div>
+      <div class="gen-sub" id="genSub">Swiss Ephemeris · Lahiri Ayanamsa</div>
+      <div style="margin-top:1.5rem;display:flex;flex-direction:column;gap:8px" id="genSteps">
+        <div class="summary-row"><span class="summary-icon">🪐</span><div><div class="summary-lbl">Calculating</div><div class="summary-val">Lagna · Rashi · Nakshatra · House cusps</div></div></div>
+        <div class="summary-row" style="opacity:0.4"><span class="summary-icon">⭐</span><div><div class="summary-lbl">Evaluating</div><div class="summary-val">200+ Yoga rules · Dosha detection</div></div></div>
+        <div class="summary-row" style="opacity:0.2"><span class="summary-icon">🤖</span><div><div class="summary-lbl">AI Interpreting</div><div class="summary-val">GPT-4o · RAG from classical texts</div></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+let curStep = 2;
+function goStep(n) {
+  document.getElementById('step'+curStep).style.display='none';
+  document.getElementById('step'+n).style.display='block';
+  for(let i=1;i<=4;i++){
+    const c=document.getElementById('sc'+i);
+    const l=document.getElementById('sl'+i);
+    if(i<n){c.className='step-circle done';c.innerHTML='✓<span class="step-label">'+['','Name','Birth date','Birth time','Location'][i]+'</span>';}
+    else if(i===n){c.className='step-circle active';c.innerHTML=i+'<span class="step-label">'+['','Name','Birth date','Birth time','Location'][i]+'</span>';}
+    else{c.className='step-circle';c.innerHTML=i+'<span class="step-label">'+['','Name','Birth date','Birth time','Location'][i]+'</span>';}
+    if(l){l.className='step-line'+(i<n?' done':'');}
+  }
+  curStep=n;
+}
+function selGender(v,a,b,c){
+  document.getElementById(a).className='gender-opt selected';
+  document.getElementById(b).className='gender-opt';
+  document.getElementById(c).className='gender-opt';
+}
+function selProfile(){
+  document.getElementById('pSelf').className='gender-opt';
+  document.getElementById('pOther').className='gender-opt selected';
+}
+function goGenerate(){
+  document.getElementById('step4').style.display='none';
+  document.getElementById('stepGen').style.display='block';
+  const steps=document.getElementById('genSteps').children;
+  const texts=[
+    ['Computing planetary positions...','Swiss Ephemeris · Lahiri Ayanamsa'],
+    ['Evaluating Yogas and Doshas...','Running 200+ classical rule checks'],
+    ['Generating AI interpretation...','GPT-4o · Brihat Parashara Hora Shastra RAG']
+  ];
+  let idx=0;
+  const iv=setInterval(()=>{
+    idx++;
+    if(idx<steps.length) steps[idx].style.opacity='1';
+    if(idx<texts.length){
+      document.getElementById('genText').textContent=texts[idx][0];
+      document.getElementById('genSub').textContent=texts[idx][1];
+    }
+    if(idx>=2){clearInterval(iv);setTimeout(()=>sendPrompt('Show me the completed AstroPro Kundli dashboard for Priya Rajan'),1400);}
+  },1600);
+}
+</script>
