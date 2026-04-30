@@ -10,7 +10,7 @@ import {
 const router = express.Router();
 
 // All horoscope features are protected and trackable
-router.post('/kundli', protect ,analyzeKundli);
+router.post('/kundli',analyzeKundli);
 router.post('/vastu', protect, analyzeVastu);
 
 // Palm reading requires a file upload
