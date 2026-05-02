@@ -72,7 +72,7 @@ export const Header = ({ isScrolled }: { isScrolled: boolean }) => {
                         </Link>
                         
                         <Link 
-                            href="/generate" 
+                            href="/dashboard" 
                             className="group flex items-center gap-2 bg-white text-black text-[12px] font-extrabold px-5 py-2.5 rounded-full transition-all active:scale-95 whitespace-nowrap"
                         >
                             <span>Launch</span>
