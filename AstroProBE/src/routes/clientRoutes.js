@@ -18,8 +18,8 @@ router.route('/')
 
 // Specific Client Operations
 router.route('/:id')
-  .get(getClientById)       // Get single client + analysis history
-  .put(updateClient)       // Edit client details
-  .delete(deleteClient);    // Terminate client record
+  .get(getClientById)       
+  .put(updateClient)      
+  .delete(deleteClient);    
 
 export default router;

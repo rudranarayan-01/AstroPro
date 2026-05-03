@@ -59,6 +59,13 @@ export default function Sidebar({ activeTab, setActiveTab, isClientSelected }: S
     },
   ];
 
+    const handleLogout = () => {
+      // Clear session and redirect to login
+      localStorage.removeItem('astro_token');
+      localStorage.removeItem('astro_user');
+      router.push('/login');
+    };
+
   return (
     <aside className="w-72 bg-[#050608] border-r border-white/[0.04] flex flex-col h-screen sticky top-0 z-50 overflow-hidden shadow-2xl">
       {/* Ambient Glow */}
@@ -174,7 +181,6 @@ export default function Sidebar({ activeTab, setActiveTab, isClientSelected }: S
                   DR
                 </div>
               </div>
-              <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-emerald-500 border-2 border-[#050608] rounded-full shadow-lg" />
             </div>
             <div className="flex flex-col min-w-0">
               <span className="text-xs font-black text-white truncate uppercase tracking-wider">Dr. Astrologer</span>
@@ -183,7 +189,7 @@ export default function Sidebar({ activeTab, setActiveTab, isClientSelected }: S
           </div>
           
           <button 
-            onClick={() => router.push('/auth/login')}
+            onClick={handleLogout}
             className="w-full flex items-center justify-center gap-2 py-3 rounded-xl text-[10px] font-black text-white/30 hover:text-white hover:bg-red-500/80 transition-all border border-white/[0.03] hover:border-transparent uppercase tracking-[0.2em] group"
           >
             <LogOut size={14} className="group-hover:rotate-12 transition-transform" />

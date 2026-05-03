@@ -1,25 +1,77 @@
 "use client";
 import React, { useState, useEffect } from 'react';
-import { Mail, Lock, User, Sparkles, ArrowRight } from 'lucide-react';
+import { Mail, Lock, User, Sparkles, ArrowRight, Loader2, ShieldCheck, AlertCircle } from 'lucide-react';
+import { useAuth } from '@/context/AuthContext'; // Path to your context
 
 export default function LoginPage() {
   const [isLogin, setIsLogin] = useState(true);
   const [mounted, setMounted] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  
+  // Form States
+  const [formData, setFormData] = useState({
+    email: '',
+    password: '',
+    fullName: ''
+  });
 
-  // Fix hydration mismatch by only rendering random elements after mount
+  const { login } = useAuth();
+  const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:5000/api/v1';
+
   useEffect(() => {
     setMounted(true);
   }, []);
 
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+    if (error) setError(null); // Clear error on typing
+  };
+
+const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
+  setIsLoading(true);
+  setError(null);
+
+  const endpoint = isLogin ? '/auth/login' : '/auth/register';
+  
+  try {
+    const response = await fetch(`${BASE_URL}${endpoint}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(formData),
+    });
+
+    const result = await response.json();
+
+    if (!response.ok || !result.success) {
+      throw new Error(result.message || 'Celestial alignment failed. Check your credentials.');
+    }
+
+    // Extraction based on your specific backend structure
+    const token = result.session.access_token;
+    const userData = {
+      id: result.user.id,
+      email: result.user.email,
+      name: result.user.user_metadata.full_name,
+    };
+
+    // Save to AuthContext
+    login(token, userData);
+    
+  } catch (err: any) {
+    setError(err.message);
+  } finally {
+    setIsLoading(false);
+  }
+};
+
   return (
-    <div className="relative min-h-screen w-full bg-[#02040a] flex items-center justify-center p-6 overflow-hidden font-sans">
+    <div className="relative min-h-screen w-full bg-[#02040a] flex items-center justify-center p-6 overflow-hidden font-sans selection:bg-orange-500/30">
       
       {/* --- ASTROLOGICAL BACKGROUND LAYER --- */}
       <div className="absolute inset-0 z-0 pointer-events-none select-none">
-        
-        {/* 1. The Great Zodiac Wheel (Geometry) */}
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[900px] h-[900px] opacity-[0.04] animate-slow-spin">
-            {/* Compass Markings */}
             {[...Array(24)].map((_, i) => (
                 <div 
                     key={i} 
@@ -27,49 +79,50 @@ export default function LoginPage() {
                     style={{ transform: `translate(-50%, -50%) rotate(${i * 15}deg)` }}
                 />
             ))}
-            {/* Concentric Sacred Circles */}
             <div className="absolute inset-0 border border-white rounded-full scale-[1.0]" />
             <div className="absolute inset-0 border border-white rounded-full scale-[0.7] border-dashed" />
             <div className="absolute inset-0 border border-white rounded-full scale-[0.4]" />
         </div>
 
-        {/* 2. Hydration-Safe Constellations */}
         {mounted && (
           <div className="absolute inset-0">
-              {[...Array(30)].map((_, i) => (
+              {[...Array(40)].map((_, i) => (
                   <div 
                       key={i}
-                      className="absolute w-1 h-1 bg-orange-400 rounded-full animate-twinkle"
+                      className="absolute w-[2px] h-[2px] bg-orange-400 rounded-full animate-twinkle"
                       style={{ 
-                          top: `${(i * 7) % 100}%`, // Deterministic "random" positions
-                          left: `${(i * 13) % 100}%`,
-                          animationDelay: `${(i * 0.5) % 5}s`,
-                          opacity: 0.3
+                          top: `${(i * 19) % 100}%`,
+                          left: `${(i * 23) % 100}%`,
+                          animationDelay: `${(i * 0.3) % 5}s`,
+                          opacity: 0.4
                       }}
                   />
               ))}
           </div>
         )}
 
-        {/* 3. Celestial Glows (GPU Accelerated) */}
         <div className="absolute top-[-10%] left-[-5%] w-[50%] h-[50%] bg-orange-600/[0.08] blur-[140px] rounded-full animate-pulse" />
         <div className="absolute bottom-[-10%] right-[-5%] w-[50%] h-[50%] bg-blue-600/[0.08] blur-[140px] rounded-full animate-pulse" style={{ animationDelay: '2s' }} />
       </div>
 
       {/* --- AUTH CARD --- */}
-      <div className="relative z-10 w-full max-w-[420px]">
-        {/* Glassmorphism Container */}
-        <div className="relative bg-white/[0.01] backdrop-blur-3xl border border-white/[0.07] rounded-[48px] p-10 md:p-12 shadow-[0_40px_100px_rgba(0,0,0,0.7)] overflow-hidden">
+      <div className="relative z-10 w-full max-w-[440px]">
+        <div className="relative bg-[#0a0c14]/40 backdrop-blur-3xl border border-white/[0.08] rounded-[48px] p-10 md:p-14 shadow-[0_40px_100px_rgba(0,0,0,0.8)] overflow-hidden">
           
-          {/* Subtle Internal Flare */}
-          <div className="absolute -top-24 -left-24 w-48 h-48 bg-orange-500/10 blur-3xl rounded-full" />
+          {/* Status Indicator */}
+          <div className="absolute top-8 right-10">
+             {isLoading ? (
+               <Loader2 className="w-5 h-5 text-orange-500 animate-spin" />
+             ) : (
+               <ShieldCheck className="w-5 h-5 text-white/10" />
+             )}
+          </div>
 
           {/* Header */}
           <div className="text-center mb-10">
             <div className="relative inline-flex items-center justify-center w-20 h-20 mb-8 group">
-                {/* Orbital Ring Animation */}
                 <div className="absolute inset-0 border border-orange-500/20 rounded-full animate-spin-slow group-hover:border-orange-500/50 transition-colors" />
-                <div className="relative w-14 h-14 rounded-2xl bg-gradient-to-tr from-orange-500 to-orange-700 flex items-center justify-center shadow-[0_0_30px_rgba(249,115,22,0.4)]">
+                <div className="relative w-14 h-14 rounded-2xl bg-gradient-to-tr from-orange-500 to-orange-700 flex items-center justify-center shadow-[0_0_40px_rgba(249,115,22,0.3)]">
                     <Sparkles className="text-white w-7 h-7" />
                 </div>
             </div>
@@ -80,21 +133,33 @@ export default function LoginPage() {
             <div className="flex items-center justify-center gap-2">
                 <div className="h-[1px] w-8 bg-gradient-to-r from-transparent to-orange-500/50" />
                 <p className="text-orange-500/60 text-[10px] font-bold tracking-[0.3em] uppercase">
-                  Celestial Access
+                  {isLogin ? 'Portal to Cosmos' : 'Sign New Contract'}
                 </p>
                 <div className="h-[1px] w-8 bg-gradient-to-l from-transparent to-orange-500/50" />
             </div>
           </div>
 
+          {/* Error Message */}
+          {error && (
+            <div className="mb-6 flex items-center gap-3 bg-red-500/10 border border-red-500/20 rounded-xl p-4 animate-in fade-in slide-in-from-top-2 duration-300">
+              <AlertCircle className="w-4 h-4 text-red-500 flex-shrink-0" />
+              <p className="text-red-400 text-[10px] font-bold leading-tight tracking-wider uppercase">{error}</p>
+            </div>
+          )}
+
           {/* Form */}
-          <form className="space-y-5" onSubmit={(e) => e.preventDefault()}>
+          <form className="space-y-4" onSubmit={handleSubmit}>
             {!isLogin && (
               <div className="group relative">
                 <User className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/20 group-focus-within:text-orange-500 transition-colors" />
                 <input
+                  name="fullName"
                   type="text"
-                  placeholder="NOM DE PLUME"
-                  className="w-full bg-white/[0.03] border border-white/[0.08] rounded-2xl py-4 pl-12 pr-4 text-[10px] font-black tracking-widest text-white placeholder:text-white/10 focus:outline-none focus:border-orange-500/40 focus:bg-white/[0.05] transition-all uppercase"
+                  required
+                  value={formData.fullName}
+                  onChange={handleChange}
+                  placeholder="NOM DE PLUME (FULL NAME)"
+                  className="w-full bg-white/[0.03] border border-white/[0.08] rounded-2xl py-4 pl-12 pr-4 text-[11px] font-bold tracking-widest text-white placeholder:text-white/10 focus:outline-none focus:border-orange-500/40 focus:bg-white/[0.05] transition-all uppercase"
                 />
               </div>
             )}
@@ -102,27 +167,39 @@ export default function LoginPage() {
             <div className="group relative">
               <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/20 group-focus-within:text-orange-500 transition-colors" />
               <input
+                name="email"
                 type="email"
-                placeholder="UNIVERSE IDENTIFIER"
-                className="w-full bg-white/[0.03] border border-white/[0.08] rounded-2xl py-4 pl-12 pr-4 text-[10px] font-black tracking-widest text-white placeholder:text-white/10 focus:outline-none focus:border-orange-500/40 focus:bg-white/[0.05] transition-all uppercase"
+                required
+                value={formData.email}
+                onChange={handleChange}
+                placeholder="EMAIL OR USERNAME"
+                className="w-full bg-white/[0.03] border border-white/[0.08] rounded-2xl py-4 pl-12 pr-4 text-[11px] font-bold tracking-widest text-white placeholder:text-white/10 focus:outline-none focus:border-orange-500/40 focus:bg-white/[0.05] transition-all uppercase"
               />
             </div>
 
             <div className="group relative">
               <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/20 group-focus-within:text-orange-500 transition-colors" />
               <input
+                name="password"
                 type="password"
-                placeholder="CRYPTIC KEY"
-                className="w-full bg-white/[0.03] border border-white/[0.08] rounded-2xl py-4 pl-12 pr-4 text-[10px] font-black tracking-widest text-white placeholder:text-white/10 focus:outline-none focus:border-orange-500/40 focus:bg-white/[0.05] transition-all uppercase"
+                required
+                value={formData.password}
+                onChange={handleChange}
+                placeholder="PASSWORD OR CRYPTIC KEY"
+                className="w-full bg-white/[0.03] border border-white/[0.08] rounded-2xl py-4 pl-12 pr-4 text-[11px] font-bold tracking-widest text-white placeholder:text-white/10 focus:outline-none focus:border-orange-500/40 focus:bg-white/[0.05] transition-all uppercase"
               />
             </div>
 
-            <button className="group relative w-full h-14 mt-6 overflow-hidden rounded-2xl bg-orange-600 transition-all active:scale-[0.97]">
+            <button 
+              type="submit" 
+              disabled={isLoading}
+              className="group relative w-full h-14 mt-6 overflow-hidden rounded-2xl bg-orange-600 transition-all active:scale-[0.97] disabled:opacity-50 disabled:cursor-not-allowed"
+            >
                 <div className="absolute inset-0 bg-gradient-to-r from-orange-500 to-orange-700" />
-                <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-500" />
+                <div className="absolute inset-0 bg-white/10 translate-y-full group-hover:translate-y-0 transition-transform duration-500" />
                 <span className="relative flex items-center justify-center gap-3 text-white font-black uppercase tracking-[0.25em] text-[11px]">
-                  {isLogin ? 'Initiate Link' : 'Forge Path'}
-                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                  {isLoading ? 'Processing...' : (isLogin ? 'Initiate Link' : 'Forge Path')}
+                  {!isLoading && <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />}
                 </span>
             </button>
           </form>
@@ -130,8 +207,12 @@ export default function LoginPage() {
           {/* Toggle Access */}
           <div className="text-center mt-12">
               <button 
-                onClick={() => setIsLogin(!isLogin)}
-                className="text-[9px] font-black uppercase tracking-[0.3em] text-white/30 hover:text-orange-500 transition-all"
+                type="button"
+                onClick={() => {
+                  setIsLogin(!isLogin);
+                  setError(null);
+                }}
+                className="text-[10px] font-black uppercase tracking-[0.3em] text-white/20 hover:text-orange-500 transition-all border-b border-transparent hover:border-orange-500/50 pb-1"
               >
                 {isLogin ? 'Create New Reality' : 'Return to Core'}
               </button>
