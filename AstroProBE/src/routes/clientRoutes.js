@@ -13,8 +13,8 @@ router.use(protect);
 
 // Primary Client Management
 router.route('/')
-  .post(createClient)       // Create & Save Client
-  .get(getAllClients);      // List all clients for the logged-in astrologer
+  .post(createClient)      
+  .get(getAllClients);     
 
 // Specific Client Operations
 router.route('/:id')
