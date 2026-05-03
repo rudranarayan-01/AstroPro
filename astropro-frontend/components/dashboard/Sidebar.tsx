@@ -67,19 +67,19 @@ export default function Sidebar({ activeTab, setActiveTab, isClientSelected }: S
     };
 
   return (
-    <aside className="w-72 bg-[#050608] border-r border-white/[0.04] flex flex-col h-screen sticky top-0 z-50 overflow-hidden shadow-2xl">
+    <aside className="w-72 bg-[#050608] border-r border-white/4 flex flex-col h-screen sticky top-0 z-50 overflow-hidden shadow-2xl">
       {/* Ambient Glow */}
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(249,115,22,0.03),transparent_50%)] pointer-events-none" />
 
       {/* Brand Header */}
       <div className="p-8 pb-10 relative">
         <button 
-          onClick={() => router.push('/dashboard')} 
-          className="flex items-center gap-3 group text-left"
+          onClick={() => router.push('/')} 
+          className="flex items-center gap-3 group text-left cursor-pointer"
         >
           <div className="relative">
             <div className="absolute inset-0 bg-orange-500 blur-xl opacity-20 group-hover:opacity-40 transition-opacity" />
-            <div className="relative w-11 h-11 bg-gradient-to-br from-orange-400 to-orange-600 rounded-[14px] flex items-center justify-center shadow-lg border border-white/10">
+            <div className="relative w-11 h-11 bg-linear-to-br from-orange-400 to-orange-600 rounded-[14px] flex items-center justify-center shadow-lg border border-white/10">
               <Zap size={22} className="text-white fill-white/20" />
             </div>
           </div>
