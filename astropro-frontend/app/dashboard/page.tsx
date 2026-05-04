@@ -165,6 +165,11 @@ export default function Dashboard() {
               </h1>
               <span className="text-lg font-black text-white uppercase tracking-tighter italic">{activeTab}</span>
             </div>
+            {/* To show selected client name next to active view, you can uncomment the line below and ensure `selectedClient` has a `name` property. */}
+            <div className="flex items-center gap-2">
+              {selectedClient && <User size={14} className="text-white/30" />}
+              <div className="text-sm text-white/50 italic">{selectedClient ? selectedClient.name : ''}</div>
+            </div>
 
             <div className="flex items-center gap-3">
               <button onClick={() => setActiveModal('quick')} className="flex items-center gap-2 px-5 py-2.5 border-orange-600 border-2 hover:border-orange-300 animate text-white rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shadow-lg active:scale-95">
