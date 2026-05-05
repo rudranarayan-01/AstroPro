@@ -10,6 +10,7 @@ import userRoutes from "./routes/userRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
 import horoscopeRoutes from "./routes/horoscopeRoutes.js"
 import clientRoutes from "./routes/clientRoutes.js";
+import historyRoutes from "./routes/historyRoutes.js";
 
 dotenv.config();
 
@@ -33,6 +34,7 @@ app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/users', userRoutes);
 app.use('/api/v1/clients', clientRoutes);
 app.use('/api/v1/horoscope', horoscopeRoutes);
+app.use('/api/v1/history', historyRoutes);
 
 // --- Global Error Handler ---
 app.use(errorHandler);

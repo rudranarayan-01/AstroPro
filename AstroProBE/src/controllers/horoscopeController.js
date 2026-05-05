@@ -1,10 +1,10 @@
 import { supabase } from "../config/supabase.js";
+import { saveAnalysisRecord } from "../models/AnalysisHistory.js";
 import { AuditLog } from "../models/AuditLog.js";
 import { generateDetailedReport } from "../services/ai/kundliAIService.js";
 import { getKundliData } from "../services/astrologyService.js";
 import { getInterpretation } from "../services/interpretationService.js";
 import { calculateVastuScore } from "../services/vastuService.js";
-import { saveAnalysisRecord } from "./analysisController.js";
 
 export const analyzePalm = async (req, res) => {
   try {
