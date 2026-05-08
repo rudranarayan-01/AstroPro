@@ -1,68 +1,18 @@
+// components/dashboard/KundliView.tsx
 "use client";
-import React, { useState, useMemo } from 'react';
+
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import BirthChart from '../BirthChart';
-import { 
-  Sparkles, TrendingUp, Heart, Wallet, Loader2, Compass, 
-  Activity, Microscope, Languages, CheckCircle2 
+import InsightCard from './InsightCard';
+import { translations } from '../translation';
+import { translateText } from '@/utils/ClientTranslation';
+import {
+  Sparkles, TrendingUp, Heart, Wallet, Loader2, Compass,
+  Activity, Microscope, Languages, CheckCircle2
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
-
-// --- Translation Dictionary ---
-const translations: any = {
-  en: {
-    title: "Celestial Kundli",
-    generate: "Generate Birth Chart",
-    decoding: "Decoding Celestial Positions...",
-    lagnaChart: "Lagna Chart",
-    degrees: "Planetary Degrees",
-    personality: "Character & Personality",
-    love: "Love & Lineage",
-    wealth: "Wealth & Fortune",
-    work: "Professional Path",
-    future: "Future Trajectory",
-    verdict: "Synthesized Behavior Analysis",
-    major: "Major",
-    minor: "Minor",
-    north: "NORTH",
-    south: "SOUTH",
-  },
-  hi: {
-    title: "दिव्य कुंडली",
-    generate: "जन्म कुंडली बनाएं",
-    decoding: "ग्रहों की स्थिति की गणना...",
-    lagnaChart: "लग्न चार्ट",
-    degrees: "ग्रहों के अंश",
-    personality: "चरित्र और व्यक्तित्व",
-    love: "प्रेम और वंश",
-    wealth: "धन और भाग्य",
-    work: "व्यवसायिक पथ",
-    future: "भविष्य की दिशा",
-    verdict: "व्यवहार विश्लेषण",
-    major: "मुख्य",
-    minor: "न्यून",
-    north: "उत्तर",
-    south: "दक्षिण",
-  },
-  or: {
-    title: "ଦିବ୍ୟ କୁଣ୍ଡଳୀ",
-    generate: "ଜନ୍ମ କୁଣ୍ଡଳୀ ପ୍ରସ୍ତୁତ କରନ୍ତୁ",
-    decoding: "ଗ୍ରହ ସ୍ଥିତି ଗଣନା ଚାଲିଛି...",
-    lagnaChart: "ଲଗ୍ନ ଚାର୍ଟ",
-    degrees: "ଗ୍ରହ ଅଂଶ",
-    personality: "ଚରିତ୍ର ଓ ବ୍ୟକ୍ତିତ୍ୱ",
-    love: "ପ୍ରେମ ଓ ବଂଶ",
-    wealth: "ଧନ ଓ ଭାଗ୍ୟ",
-    work: "ବୃତ୍ତିଗତ ପଥ",
-    future: "ଭବିଷ୍ୟତ",
-    verdict: "ଆଚରଣ ବିଶ୍ଳେଷଣ",
-    major: "ମୁଖ୍ୟ",
-    minor: "ଗୌଣ",
-    north: "ଉତ୍ତର",
-    south: "ଦକ୍ଷିଣ",
-  }
-};
 
 interface KundliViewProps {
   clientData?: any;
@@ -74,8 +24,12 @@ export default function KundliView({ clientData }: KundliViewProps) {
   const [lang, setLang] = useState('en');
   const [chartType, setChartType] = useState('North');
 
+  // State for dynamic translated text from backend predictions
+  const [translatedPredictions, setTranslatedPredictions] = useState<any>(null);
+  const [isTranslating, setIsTranslating] = useState(false);
+
   const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5000/api/v1';
-  const t = translations[lang];
+  const t = translations[lang] || translations.en;
 
   // --- 1. Fetch History with React Query ---
   const { data: kundliData, isLoading: historyLoading } = useQuery({
@@ -89,7 +43,7 @@ export default function KundliView({ clientData }: KundliViewProps) {
       return historyItem?.result_data || null;
     },
     enabled: !!clientData?.id && !!token,
-    staleTime: 1000 * 60 * 30, // 30 minutes cache
+    staleTime: 1000 * 60 * 30,
   });
 
   // --- 2. Generate Kundli Mutation ---
@@ -103,7 +57,7 @@ export default function KundliView({ clientData }: KundliViewProps) {
         lat: clientData.lat,
         lon: clientData.lon,
         tz: clientData.tz || 5.5,
-        lang: lang // Pass language preference to backend if supported
+        lang: lang
       };
       const response = await axios.post(`${BASE_URL}/horoscope/kundli`, payload, {
         headers: { Authorization: `Bearer ${token}` }
@@ -115,9 +69,52 @@ export default function KundliView({ clientData }: KundliViewProps) {
     }
   });
 
-  const getPlanet = (name: string) => kundliData?.chart?.find((p: any) => p.name === name) || {};
+  // --- 3. Dynamic Backend Text Translation Process ---
+  useEffect(() => {
+    async function translateBackendContent() {
+      if (!kundliData?.predictions) return;
 
-  const isLoading = historyLoading || mutation.isPending;
+      // If language is English, just use the original content directly
+      if (lang === 'en') {
+        setTranslatedPredictions(kundliData.predictions);
+        return;
+      }
+
+      setIsTranslating(true);
+      const predictions = kundliData.predictions;
+
+      try {
+        const [personality, love, money, work_life, future, behavior] = await Promise.all([
+          translateText(predictions.personality, lang),
+          translateText(predictions.love, lang),
+          translateText(predictions.money, lang),
+          translateText(predictions.work_life, lang),
+          translateText(predictions.future, lang),
+          translateText(predictions.behavior, lang),
+        ]);
+
+        setTranslatedPredictions({
+          personality,
+          love,
+          money,
+          work_life,
+          future,
+          behavior
+        });
+      } catch (err) {
+        console.error("Could not translate predictions automatically", err);
+        setTranslatedPredictions(predictions); // Fallback to raw data
+      } finally {
+        setIsTranslating(false);
+      }
+    }
+
+    translateBackendContent();
+  }, [lang, kundliData]);
+
+  const getPlanet = (name: string) => kundliData?.chart?.find((p: any) => p.name === name) || {};
+  const isLoading = historyLoading || mutation.isPending || isTranslating;
+  const activePredictions = translatedPredictions || kundliData?.predictions;
 
   return (
     <div className="relative min-h-screen animate-in fade-in duration-1000 pb-20">
@@ -155,8 +152,8 @@ export default function KundliView({ clientData }: KundliViewProps) {
         {!kundliData && !isLoading && (
           <div className="flex flex-col items-center justify-center py-32 bg-[#0d0f14]/60 border border-white/5 rounded-[40px] backdrop-blur-2xl">
             <Sparkles className="text-orange-500 mb-6 animate-pulse" size={48} />
-            <button 
-              onClick={() => mutation.mutate()} 
+            <button
+              onClick={() => mutation.mutate()}
               className="group relative px-10 py-5 bg-orange-600 hover:bg-orange-500 text-white rounded-2xl text-xs font-black uppercase tracking-widest transition-all overflow-hidden"
             >
               <span className="relative z-10">{t.generate}</span>
@@ -175,15 +172,15 @@ export default function KundliView({ clientData }: KundliViewProps) {
           </div>
         )}
 
-        {kundliData && (
+        {kundliData && !isLoading && (
           <>
             {/* KEY METRICS */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
               {[
-                { label: 'Sun Sign', val: getPlanet('Sun').sign, color: 'text-yellow-500' },
-                { label: 'Moon Sign', val: getPlanet('Moon').sign, color: 'text-blue-400' },
-                { label: 'Jupiter Sign', val: getPlanet('Jupiter').sign, color: 'text-purple-400' },
-                { label: 'Primary House', val: `H-${getPlanet('Sun').house}`, color: 'text-emerald-400' }
+                { label: t.sunSign, val: getPlanet('Sun').sign, color: 'text-yellow-500' },
+                { label: t.moonSign, val: getPlanet('Moon').sign, color: 'text-blue-400' },
+                { label: t.jupiterSign, val: getPlanet('Jupiter').sign, color: 'text-purple-400' },
+                { label: t.primaryHouse, val: `H-${getPlanet('Sun').house}`, color: 'text-emerald-400' }
               ].map((item) => (
                 <div key={item.label} className="group bg-[#0d0f14]/80 backdrop-blur-md border border-white/[0.05] rounded-[24px] p-6 hover:border-orange-500/20 transition-all">
                   <p className="text-[9px] font-black tracking-[0.2em] text-white/20 uppercase mb-2 group-hover:text-orange-500/40 transition-colors">{item.label}</p>
@@ -196,16 +193,15 @@ export default function KundliView({ clientData }: KundliViewProps) {
             <div className="grid grid-cols-12 gap-6 mb-8">
               <div className="col-span-12 lg:col-span-7 bg-[#0d0f14]/60 backdrop-blur-2xl border border-white/[0.05] rounded-[40px] p-8">
                 <div className="flex justify-between items-center mb-8">
-                   <div className="flex items-center gap-3">
-                      <div className="w-2 h-2 rounded-full bg-orange-500 animate-pulse" />
-                      <h3 className="text-[10px] font-black text-white uppercase tracking-[0.3em]">{t.lagnaChart}</h3>
-                   </div>
-                   <div className="flex gap-1 bg-white/5 p-1 rounded-xl">
-                      <button onClick={() => setChartType('North')} className={`px-4 py-2 rounded-lg text-[10px] font-bold transition-all ${chartType === 'North' ? 'bg-white/10 text-white' : 'text-white/30 hover:text-white/50'}`}>{t.north}</button>
-                      <button onClick={() => setChartType('South')} className={`px-4 py-2 rounded-lg text-[10px] font-bold transition-all ${chartType === 'South' ? 'bg-white/10 text-white' : 'text-white/30 hover:text-white/50'}`}>{t.south}</button>
-                   </div>
+                  <div className="flex items-center gap-3">
+                    <div className="w-2 h-2 rounded-full bg-orange-500 animate-pulse" />
+                    <h3 className="text-[10px] font-black text-white uppercase tracking-[0.3em]">{t.lagnaChart}</h3>
+                  </div>
+                  <div className="flex gap-1 bg-white/5 p-1 rounded-xl">
+                    <button onClick={() => setChartType('North')} className={`px-4 py-2 rounded-lg text-[10px] font-bold transition-all ${chartType === 'North' ? 'bg-white/10 text-white' : 'text-white/30 hover:text-white/50'}`}>{t.north}</button>
+                    <button onClick={() => setChartType('South')} className={`px-4 py-2 rounded-lg text-[10px] font-bold transition-all ${chartType === 'South' ? 'bg-white/10 text-white' : 'text-white/30 hover:text-white/50'}`}>{t.south}</button>
+                  </div>
                 </div>
-                {/* Fixed BirthChart implementation */}
                 <div className="flex justify-center py-4">
                   <BirthChart type={chartType} onTypeChange={setChartType} chart={kundliData.chart} />
                 </div>
@@ -240,27 +236,27 @@ export default function KundliView({ clientData }: KundliViewProps) {
 
             {/* INSIGHTS GRID */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-              <InsightCard title={t.personality} icon={<TrendingUp size={20} />} content={kundliData.predictions?.personality} accent="border-emerald-500/10" iconColor="text-emerald-400" />
-              <InsightCard title={t.love} icon={<Heart size={20} />} content={kundliData.predictions?.love} accent="border-pink-500/10" iconColor="text-pink-400" />
-              <InsightCard title={t.wealth} icon={<Wallet size={20} />} content={kundliData.predictions?.money} accent="border-orange-500/10" iconColor="text-orange-400" />
+              <InsightCard title={t.personality} icon={<TrendingUp size={20} />} content={activePredictions?.personality} accent="border-emerald-500/10" iconColor="text-emerald-400" />
+              <InsightCard title={t.love} icon={<Heart size={20} />} content={activePredictions?.love} accent="border-pink-500/10" iconColor="text-pink-400" />
+              <InsightCard title={t.wealth} icon={<Wallet size={20} />} content={activePredictions?.money} accent="border-orange-500/10" iconColor="text-orange-400" />
             </div>
 
             {/* ADVANCED ANALYSIS */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                <div className="group bg-[#0d0f14]/80 backdrop-blur-md border border-indigo-500/10 rounded-[40px] p-10 hover:border-indigo-500/30 transition-all">
-                   <div className="flex items-center gap-4 mb-6 text-indigo-400">
-                      <div className="p-3 bg-indigo-500/5 rounded-2xl"><Microscope size={24} /></div>
-                      <h3 className="font-black text-xs uppercase tracking-[0.3em]">{t.work}</h3>
-                   </div>
-                   <p className="text-sm text-white/50 leading-[1.8] font-medium">{kundliData.predictions?.work_life}</p>
+              <div className="group bg-[#0d0f14]/80 backdrop-blur-md border border-indigo-500/10 rounded-[40px] p-10 hover:border-indigo-500/30 transition-all">
+                <div className="flex items-center gap-4 mb-6 text-indigo-400">
+                  <div className="p-3 bg-indigo-500/5 rounded-2xl"><Microscope size={24} /></div>
+                  <h3 className="font-black text-xs uppercase tracking-[0.3em]">{t.work}</h3>
                 </div>
-                <div className="group bg-[#0d0f14]/80 backdrop-blur-md border border-purple-500/10 rounded-[40px] p-10 hover:border-purple-500/30 transition-all">
-                   <div className="flex items-center gap-4 mb-6 text-purple-400">
-                      <div className="p-3 bg-purple-500/5 rounded-2xl"><Compass size={24} /></div>
-                      <h3 className="font-black text-xs uppercase tracking-[0.3em]">{t.future}</h3>
-                   </div>
-                   <p className="text-sm text-white/50 leading-[1.8] font-medium">{kundliData.predictions?.future}</p>
+                <p className="text-sm text-white/50 leading-[1.8] font-medium">{activePredictions?.work_life}</p>
+              </div>
+              <div className="group bg-[#0d0f14]/80 backdrop-blur-md border border-purple-500/10 rounded-[40px] p-10 hover:border-purple-500/30 transition-all">
+                <div className="flex items-center gap-4 mb-6 text-purple-400">
+                  <div className="p-3 bg-purple-500/5 rounded-2xl"><Compass size={24} /></div>
+                  <h3 className="font-black text-xs uppercase tracking-[0.3em]">{t.future}</h3>
                 </div>
+                <p className="text-sm text-white/50 leading-[1.8] font-medium">{activePredictions?.future}</p>
+              </div>
             </div>
 
             {/* VERDICT */}
@@ -273,24 +269,12 @@ export default function KundliView({ clientData }: KundliViewProps) {
                 <h3 className="text-sm font-black text-white uppercase tracking-[0.4em]">{t.verdict}</h3>
               </div>
               <p className="text-lg text-white/80 leading-relaxed italic max-w-4xl font-serif">
-                "{kundliData.predictions?.behavior}"
+                "{activePredictions?.behavior}"
               </p>
             </div>
           </>
         )}
       </div>
-    </div>
-  );
-}
-
-function InsightCard({ title, icon, content, accent, iconColor }: any) {
-  return (
-    <div className={`group bg-[#0d0f14]/80 backdrop-blur-md border ${accent} rounded-[40px] p-10 transition-all hover:translate-y-[-4px] hover:bg-white/[0.02]`}>
-      <div className={`w-14 h-14 rounded-[20px] bg-white/[0.03] flex items-center justify-center ${iconColor} mb-8 border border-white/[0.05] group-hover:scale-110 transition-transform`}>
-        {icon}
-      </div>
-      <h3 className="font-black text-xs text-white/30 uppercase tracking-[0.2em] mb-4">{title}</h3>
-      <p className="text-[13px] text-white/60 leading-relaxed font-medium">{content}</p>
     </div>
   );
 }
