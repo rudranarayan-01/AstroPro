@@ -88,3 +88,4 @@ function getZodiacSign(lon) {
   ];
   return signs[Math.floor(lon / 30)];
 }
+

@@ -2,39 +2,94 @@ import { supabase } from "../config/supabase.js";
 import { saveAnalysisRecord } from "../models/AnalysisHistory.js";
 import { AuditLog } from "../models/AuditLog.js";
 import { generateDetailedReport } from "../services/ai/kundliAIService.js";
+import { analyzePalmWithAI } from "../services/ai/palmService.js";
 import { getKundliData } from "../services/astrologyService.js";
 import { getInterpretation } from "../services/interpretationService.js";
 import { calculateVastuScore } from "../services/vastuService.js";
+import { preprocessPalmImage } from "../utils/imagePreprocessor.js";
 
 export const analyzePalm = async (req, res) => {
   try {
-    if (!req.file) return res.status(400).json({ error: "Please upload an image" });
+    // 1. Core Request & File Validations
+    if (!req.file) {
+      return res.status(400).json({ success: false, error: "Please upload an image" });
+    }
+    const clientId = req.body.client_id;
+    if (!clientId) {
+      return res.status(400).json({ success: false, error: "client_id is required to link this reading." });
+    }
+    if (!req.file.mimetype.startsWith("image/")) {
+      return res.status(400).json({ success: false, error: "Uploaded file must be an image." });
+    }
 
-    const fileName = `${req.user.id}/${Date.now()}.webp`;
-    const { data: uploadData, error: uploadError } = await supabase.storage
-      .from("palm-images")
-      .upload(fileName, req.file.buffer, { contentType: "image/webp" });
+    // 2. Preprocess the image buffer (essential for AI processing and optional upload)
+    const sanitizedBuffer = await preprocessPalmImage(req.file.buffer);
 
-    if (uploadError) throw uploadError;
+    // 3. Initiate the AI Analysis (This is the critical core path)
+    const analysisResult = await analyzePalmWithAI(sanitizedBuffer, "image/webp");
 
-    const analysisResult = {
-      life_line: "Strong and clear",
-      fate_line: "Prominent after age 25",
-      image_url: fileName,
-    };
+    // 4. Isolated Optional Storage Upload Block
+    let fileName = null;
+    let publicUrl = null;
 
-    // SaaS Persistence: Archive the palm reading
-    await saveAnalysisRecord({
-      astrologer_id: req.user.id,
-      client_id: req.body.client_id, // From frontend if available
-      analysis_type: 'PALM',
-      input_data: { image_path: fileName },
-      result_data: analysisResult
+    try {
+      fileName = `${req.user.id}/${Date.now()}.webp`;
+
+      const { data, error } = await supabase.storage
+        .from("palm-images")
+        .upload(fileName, sanitizedBuffer, { 
+          contentType: "image/webp",
+          cacheControl: "3600",
+          upsert: false
+        });
+
+      if (error) {
+        // Log the storage error but do not throw it to the parent catch block
+        console.warn("Supabase Storage Upload failed (Non-blocking):", error.message);
+        fileName = null;
+      } else {
+        // Only attempt to construct a public URL if the upload succeeded
+        const { data: urlData } = supabase.storage
+          .from("palm-images")
+          .getPublicUrl(fileName);
+        
+        publicUrl = urlData?.publicUrl || null;
+      }
+    } catch (storageErr) {
+      // Catch any unexpected filesystem, network, or SDK crashes during upload
+      console.error("Critical Storage Error bypassed (Non-blocking):", storageErr.message);
+      fileName = null;
+      publicUrl = null;
+    }
+
+    try {
+      await saveAnalysisRecord({
+        astrologer_id: req.user.id,
+        client_id: clientId,
+        analysis_type: 'PALM',
+        input_data: { 
+          image_path: fileName, 
+          public_url: publicUrl
+        },
+        result_data: analysisResult 
+      });
+    } catch (dbError) {
+      console.error("Failed to archive reading to database:", dbError.message);
+    }
+
+    // 6. Return success response (with optional publicUrl included if it exists)
+    return res.status(200).json({ 
+      success: true, 
+      imageUrl: publicUrl, // frontend handles null by showing a default visual or skipping image rendering
+      analysis: analysisResult 
     });
 
-    res.json({ success: true, analysis: analysisResult });
   } catch (err) {
-    res.status(500).json({ success: false, error: err.message });
+    console.error("Palm Analysis Controller Error:", err);
+    return res.status(500).json({ 
+      success: false, 
+      error: err.message || "An unexpected error occurred during palm analysis." 
+    });
   }
 };
 

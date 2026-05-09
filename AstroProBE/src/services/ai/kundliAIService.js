@@ -5,10 +5,6 @@ const ai = new GoogleGenAI({
   apiKey: process.env.GEMINI_API_KEY,
 });
 
-/**
- * Enterprise AI Interpretation Service (Gemini 2.5 Edition)
- * Generates behavioral, personality, and life-path insights.
- */
 export const generateDetailedReport = async (planets) => {
   try {
     // Construct the context string from planetary data
@@ -31,7 +27,6 @@ export const generateDetailedReport = async (planets) => {
       Return ONLY the JSON object.
     `;
 
-    // Modern SDK method call for Gemini 2.5 Flash
     const response = await ai.models.generateContent({
       model: "gemini-2.5-flash",
       contents: [{ role: "user", parts: [{ text: prompt }] }],
