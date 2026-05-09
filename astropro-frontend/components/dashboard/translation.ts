@@ -1,4 +1,3 @@
-// components/dashboard/translations.ts
 
 export const translations: Record<string, Record<string, string>> = {
   en: {
@@ -66,5 +65,82 @@ export const translations: Record<string, Record<string, string>> = {
     jupiterSign: "ବୃହସ୍ପତି ରାଶି",
     primaryHouse: "ମୁଖ୍ୟ ଭାବ",
     footerNote: "ବୈଦିକ ଲାହିଡ଼ି ଅୟନାଂଶ ଅନୁସାରେ ଗଣିତ"
+  }
+};
+
+
+// Add these keys under each respective language inside your translation file
+export const Palm: Record<string, Record<string, string>> = {
+  en: {
+    palmTitle: "Vedic Palm Analysis",
+    subTitle: "Samudrika Shastra Ridge Interpretation",
+    analyzeNew: "Analyze New Palm",
+    surfaceMapping: "Surface Mapping",
+    lineIntensity: "Line Intensity Analysis",
+    astrologerVerdict: "Astrologer's Verdict",
+    decodingPalm: "Decoding Dermal Ridges...",
+    activeHand: "Active Profile",
+    uploadPalm: "Upload active hand palm",
+    dragDrop: "Drag and drop file here",
+    orClick: "or click to browse local files",
+    analyzeBtn: "Analyze Palm",
+    mountSun: "Mount of Sun",
+    mountMoon: "Mount of Moon",
+    mountVenus: "Mount of Venus",
+    mountJupiter: "Mount of Jupiter",
+    mountSaturn: "Mount of Saturn",
+    mountStatusStrong: "Strong Focus",
+    mountStatusCreative: "Deep Creativity",
+    mountStatusEnergy: "Vital Energy",
+    mountStatusAmbition: "High Ambition",
+    mountStatusWisdom: "Inner Wisdom",
+  },
+  hi: {
+    palmTitle: "वैदिक हस्तरेखा विश्लेषण",
+    subTitle: "सामुद्रिक शास्त्र रेखा व्याख्या",
+    analyzeNew: "नया हस्तरेखा विश्लेषण करें",
+    surfaceMapping: "सतह मानचित्रण",
+    lineIntensity: "रेखा तीव्रता विश्लेषण",
+    astrologerVerdict: "ज्योतिषी का निष्कर्ष",
+    decodingPalm: "हस्तरेखाओं का विश्लेषण किया जा रहा है...",
+    activeHand: "सक्रिय प्रोफाइल",
+    uploadPalm: "सक्रिय हाथ की हथेली अपलोड करें",
+    dragDrop: "फ़ाइल यहाँ खींचें और छोड़ें",
+    orClick: "या स्थानीय फ़ाइलें ब्राउज़ करने के लिए क्लिक करें",
+    analyzeBtn: "हस्तरेखा विश्लेषण करें",
+    mountSun: "सूर्य पर्वत",
+    mountMoon: "चंद्र पर्वत",
+    mountVenus: "शुक्र पर्वत",
+    mountJupiter: "गुरु पर्वत",
+    mountSaturn: "शनि पर्वत",
+    mountStatusStrong: "मजबूत ध्यान",
+    mountStatusCreative: "गहरी रचनात्मकता",
+    mountStatusEnergy: "महत्वपूर्ण ऊर्जा",
+    mountStatusAmbition: "उच्च महत्वाकांक्षा",
+    mountStatusWisdom: "आंतरिक ज्ञान",
+  },
+  or: {
+    palmTitle: "ବୈଦିକ ହସ୍ତରେଖା ବିଶ୍ଳେଷଣ",
+    subTitle: "ସାମୁଦ୍ରିକ ଶାସ୍ତ୍ର ରେଖା ବ୍ୟାଖ୍ୟା",
+    analyzeNew: "ନୂତନ ହସ୍ତରେଖା ବିଶ୍ଳେଷଣ କରନ୍ତୁ",
+    surfaceMapping: "ପୃଷ୍ଠଭୂମି ମାନଚିତ୍ର",
+    lineIntensity: "ରେଖା ତୀବ୍ରତା ବିଶ୍ଳେଷଣ",
+    astrologerVerdict: "ଜ୍ୟୋତିଷଙ୍କ ମତ",
+    decodingPalm: "ହସ୍ତରେଖା ଗୁଡିକ ବିଶ୍ଳେଷଣ କରାଯାଉଛି...",
+    activeHand: "ସକ୍ରିୟ ପ୍ରୋଫାଇଲ୍",
+    uploadPalm: "ସକ୍ରିୟ ହାତର ହାତପାପୁଲି ଅପଲୋଡ୍ କରନ୍ତୁ",
+    dragDrop: "ଫାଇଲ୍ ଏଠାରେ ଛାଡନ୍ତୁ",
+    orClick: "କିମ୍ବା ଫାଇଲ୍ ବ୍ରାଉଜ୍ କରିବାକୁ କ୍ଲିକ୍ କରନ୍ତୁ",
+    analyzeBtn: "ହସ୍ତରେଖା ବିଶ୍ଳେଷଣ କରନ୍ତୁ",
+    mountSun: "ସୂର୍ଯ୍ୟ ପର୍ବତ",
+    mountMoon: "ଚନ୍ଦ୍ର ପର୍ବତ",
+    mountVenus: "ଶୁକ୍ର ପର୍ବତ",
+    mountJupiter: "ବୃହସ୍ପତି ପର୍ବତ",
+    mountSaturn: "ଶନି ପର୍ବତ",
+    mountStatusStrong: "ଦୃଢ଼ ଧ୍ୟାନ",
+    mountStatusCreative: "ଗଭୀର ସୃଜନଶୀଳତା",
+    mountStatusEnergy: "ଶାରୀରିକ ଉର୍ଜା",
+    mountStatusAmbition: "ଉଚ୍ଚ ଆକାଂକ୍ଷା",
+    mountStatusWisdom: "ଆଧ୍ୟାତ୍ମିକ ଜ୍ଞାନ",
   }
 };

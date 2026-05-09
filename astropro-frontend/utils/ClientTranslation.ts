@@ -23,3 +23,4 @@ export async function translateText(text: string, targetLang: string): Promise<s
     return text;
   }
 }
+
