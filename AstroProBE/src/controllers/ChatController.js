@@ -34,3 +34,24 @@ export const getChatHistory = async (req, res) => {
     return res.status(500).json({ success: false, error: err.message });
   }
 };
+
+export const saveChatMessage = async ({ id, clientId, senderId, senderType, message }) => {
+  try {
+    const { error } = await supabase
+      .from("chat_messages")
+      .insert([
+        {
+          id: id,
+          client_id: clientId,
+          sender_id: senderId,
+          sender_type: senderType,
+          message: message
+        }
+      ]);
+
+    if (error) throw error;
+  } catch (err) {
+    console.error("Failed to save chat message:", err);
+    throw err;
+  }
+};
