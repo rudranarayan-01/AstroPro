@@ -1,4 +1,3 @@
-// components/dashboard/views/ChatView.tsx
 "use client";
 
 import React, { useState, useEffect, useRef } from 'react';
@@ -103,10 +102,16 @@ export default function ChatView({ clientContext }: ChatViewProps) {
 
     // Handle real-time incoming messages
     socket.on("receive_message", (incomingMsg: any) => {
+      // Standardize incoming real-time backend types to match history schemas:
+      // "ASTROLOGER" -> "astrologer" | "CLIENT" -> "user"
+      let parsedSender: 'ai' | 'user' | 'astrologer' = 'user';
+      if (incomingMsg.sender_type === 'ASTROLOGER' || incomingMsg.sender_type === 'astrologer') {
+        parsedSender = 'astrologer';
+      }
+
       const formatted: Message = {
         id: incomingMsg.id,
-        // Map backend sender structure to matching UI CSS targets
-        sender: incomingMsg.sender_type === 'CLIENT' ? 'user' : 'astrologer',
+        sender: parsedSender,
         text: incomingMsg.message,
         time: new Date(incomingMsg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
       };
@@ -227,25 +232,33 @@ export default function ChatView({ clientContext }: ChatViewProps) {
             </div>
           ) : (
             messages.map((msg) => {
-              const isUser = msg.sender === 'user';
+              // 1. WhatsApp Alignment Rule:
+              // Astrologer (Me) always goes RIGHT.
+              // Clients ("user") and AI systems go LEFT.
+              const isMe = msg.sender === 'astrologer';
               const isAi = msg.sender === 'ai';
               
               return (
-                <div key={msg.id} className={`flex gap-4 max-w-[85%] ${isUser ? 'ml-auto flex-row-reverse' : ''}`}>
+                <div 
+                  key={msg.id} 
+                  className={`flex gap-4 max-w-[85%] ${isMe ? 'ml-auto flex-row-reverse' : ''}`}
+                >
                   <div className={`w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center ${isAi ? 'bg-orange-500' : 'bg-white/10'}`}>
                     {isAi ? (
                       <Sparkles size={14} className="text-white"/>
                     ) : (
-                      <span className="text-[10px] font-bold">{isUser ? 'CL' : 'AS'}</span>
+                      <span className="text-[10px] font-bold">
+                        {isMe ? 'AS' : 'CL'}
+                      </span>
                     )}
                   </div>
                   <div className={`p-6 text-sm leading-relaxed ${
-                    isUser 
+                    isMe 
                       ? 'bg-orange-600 rounded-[24px] rounded-tr-none text-white' 
                       : 'bg-white/[0.03] border border-white/[0.05] rounded-[24px] rounded-tl-none text-white/80'
                   }`}>
                     {msg.text}
-                    <div className={`mt-4 text-[10px] font-bold ${isUser ? 'text-white/40 text-right' : 'text-white/20'}`}>
+                    <div className={`mt-4 text-[10px] font-bold ${isMe ? 'text-white/40 text-right' : 'text-white/20'}`}>
                       {msg.time}
                     </div>
                   </div>
@@ -272,7 +285,6 @@ export default function ChatView({ clientContext }: ChatViewProps) {
               onChange={(e) => setTypedMessage(e.target.value)}
               disabled={!isConnected || !clientId}
               onKeyDown={(e) => {
-                // Submit message on Enter without shift key
                 if (e.key === 'Enter' && !e.shiftKey) {
                   e.preventDefault();
                   handleSendMessage(e);
