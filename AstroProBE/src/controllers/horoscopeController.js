@@ -3,6 +3,7 @@ import { saveAnalysisRecord } from "../models/AnalysisHistory.js";
 import { AuditLog } from "../models/AuditLog.js";
 import { generateDetailedReport } from "../services/ai/kundliAIService.js";
 import { analyzePalmWithAI } from "../services/ai/palmService.js";
+import { calculateAdvancedVastuScore, generateVastuReportWithAI } from "../services/ai/vastruService.js";
 import { getKundliData } from "../services/astrologyService.js";
 import { getInterpretation } from "../services/interpretationService.js";
 import { calculateVastuScore } from "../services/vastuService.js";
@@ -94,22 +95,62 @@ export const analyzePalm = async (req, res) => {
 };
 
 export const analyzeVastu = async (req, res) => {
-  try {
-    const { rooms, client_id } = req.body;
-    const result = calculateVastuScore(rooms);
-
-    // SaaS Persistence: Archive Vastu
-    await saveAnalysisRecord({
-      astrologer_id: req.user.id,
-      client_id: client_id,
-      analysis_type: 'VASTU',
-      input_data: { rooms },
-      result_data: result
+  const { rooms, client_id } = req.body;
+  const astrologerId = req.user?.id;
+  if (!rooms || !Array.isArray(rooms) || rooms.length === 0) {
+    return res.status(400).json({
+      success: false,
+      message: "At least one room configuration with a defined direction is required for Vastu analysis.",
     });
-
-    res.json({ success: true, ...result });
+  }
+  try {
+    const scoreMetrics = calculateAdvancedVastuScore(rooms);
+    const aiReport = await generateVastuReportWithAI(rooms, scoreMetrics);
+    const finalVastuResult = {
+      score: scoreMetrics.score,
+      elements_breakdown: scoreMetrics.roomReports,
+      detailed_analysis: aiReport,
+    };
+    await saveAnalysisRecord({
+      astrologer_id: astrologerId,
+      client_id: client_id,
+      analysis_type: "VASTU",
+      input_data: { rooms },
+      result_data: finalVastuResult,
+    });
+    try {
+      await AuditLog.recordAction({
+        userId: astrologerId,
+        action: "VASTU_GENERATE",
+        status: "SUCCESS",
+        metadata: { 
+          total_rooms: rooms.length, 
+          calculated_score: scoreMetrics.score 
+        },
+      });
+    } catch (auditErr) {
+      console.warn("Audit Log non-blocking failure:", auditErr.message);
+    }
+    return res.status(200).json({
+      success: true,
+      data: finalVastuResult,
+    });
   } catch (err) {
-    res.status(500).json({ success: false, error: err.message });
+    console.error("Vastu Controller Error:", err);
+    try {
+      await AuditLog.recordAction({
+        userId: astrologerId,
+        action: "VASTU_GENERATE",
+        status: "FAILURE",
+        error: err.message,
+      });
+    } catch (auditErr) {
+      console.warn("Audit Log failure fallback tracking failed:", auditErr.message);
+    }
+    return res.status(500).json({
+      success: false,
+      error: err.message || "An unexpected error occurred during Vastu diagnostics.",
+    });
   }
 };
 
