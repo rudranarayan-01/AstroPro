@@ -9,6 +9,7 @@ import { Header } from '@/components/shared/Header';
 import { CosmicBackground } from '@/components/landing/CosmicBackground';
 import AstroProLanding from '@/components/landing/Landing';
 import Footer from '@/components/shared/Footer';
+import DailyHoroscope from '@/components/landing/DailyHoroscope';
 
 /**
  * HOME COMPONENT
@@ -92,6 +93,7 @@ function ThemeAwareLayout() {
           }`}
       />
 
+      <DailyHoroscope/>
       {/* 7. FOOTER GLOW (Subtle neon at the bottom) */}
       <Footer/>
     </div>

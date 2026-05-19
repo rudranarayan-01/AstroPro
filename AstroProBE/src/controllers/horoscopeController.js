@@ -8,6 +8,7 @@ import { getKundliData } from "../services/astrologyService.js";
 import { getInterpretation } from "../services/interpretationService.js";
 import { calculateVastuScore } from "../services/vastuService.js";
 import { preprocessPalmImage } from "../utils/imagePreprocessor.js";
+import axios from 'axios';
 
 export const analyzePalm = async (req, res) => {
   try {
@@ -204,5 +205,61 @@ export const analyzeKundli = async (req, res) => {
       error: error.message,
     });
     res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+let dailyCache = {
+  date: null,
+  data: null
+};
+
+export const getDailyTransitData = async (req, res) => {
+  try {
+    const todayStr = new Date().toISOString().split('T')[0]; // Format: YYYY-MM-DD
+
+    // 1. Check if we already have valid cached data for today
+    if (dailyCache.date === todayStr && dailyCache.data) {
+      console.log("⚡ Serving Daily Horoscope from internal cache");
+      return res.status(200).json({ success: true, ...dailyCache.data });
+    }
+
+    console.log("🌐 Cache miss. Requesting raw metrics from Third-Party Cosmic API...");
+    
+    // 2. Replace this URL and credentials with your preferred third-party provider configuration
+    // Example uses a generic external standard structure
+    const API_URL = process.env.ASTRO_THIRD_PARTY_URL || 'https://api.astrologyprovider.com/v1/daily';
+    const API_KEY = process.env.ASTRO_THIRD_PARTY_KEY;
+
+    // Concurrently fetch or pull data if your provider splits horoscope, rashi, and systems
+    const response = await axios.get(API_URL, {
+      headers: { 'Authorization': `Bearer ${API_KEY}` }
+    });
+
+    // 3. Format the response data to match your clean frontend structure
+    // We break it into Today's Overview, Rashi transits, and broad Astrology metrics
+    const formattedData = {
+      horoscope: response.data.horoscope_predictions, // Format: { aries: '...', taurus: '...' }
+      rashiData: response.data.rashi_metrics,         // Moon sign planetary metrics
+      astrology: response.data.general_astrology       // Panchang elements, Nakshatra, Rahu Kaal
+    };
+
+    // 4. Update memory cache
+    dailyCache.date = todayStr;
+    dailyCache.data = formattedData;
+
+    return res.status(200).json({ success: true, ...formattedData });
+
+  } catch (error) {
+    console.error("❌ Failed to resolve third-party cosmic transit telemetry:", error.message);
+    
+    // Fallback gracefully: If third-party API is down, send safe static structure so landing page doesn't break
+    return res.status(500).json({
+      success: false,
+      message: "Cosmic telemetry stream currently updating.",
+      // Return stale cache if available, otherwise pass empty mocks
+      horoscope: dailyCache.data?.horoscope || {},
+      rashiData: dailyCache.data?.rashiData || {},
+      astrology: dailyCache.data?.astrology || { panchang: "Updating nodes...", nakshatra: "Analyzing coordinates..." }
+    });
   }
 };
