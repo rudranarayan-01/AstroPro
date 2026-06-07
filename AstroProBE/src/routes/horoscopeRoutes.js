@@ -15,7 +15,7 @@ const router = express.Router();
 router.post('/kundli',protect, analyzeKundli);
 router.post('/vastu', protect, analyzeVastu);
 router.post('/calculate-public', protect, getPublicAnalysis);
-router.post('/daily', protect, getDailyTransitData);
+router.get('/daily',  getDailyTransitData);
 
 // Palm reading requires a file upload
 router.post('/palm-read', protect, upload.single('palm_image'), analyzePalm);
