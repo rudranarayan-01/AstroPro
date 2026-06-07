@@ -1,5 +1,5 @@
 // backend/src/controllers/PublicAstrologyController.js
-import { getKundliData } from "../services/astrologyService"; // Your existing calculation library
+import { getKundliData } from "../services/astrologyService.js";
 
 export const getPublicAnalysis = async (req, res) => {
   try {
